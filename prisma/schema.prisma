@@ -1,0 +1,273 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(CUSTOMER)
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  orders Order[]
+  blogPosts BlogPost[]
+
+  @@map("users")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?
+  imageUrl    String?  @map("image_url")
+  parentId    Int?     @map("parent_id")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  parent   Category?  @relation("CategoryParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryParent")
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id               Int      @id @default(autoincrement())
+  name             String
+  slug             String   @unique
+  description      String?
+  shortDescription String?  @map("short_description")
+  price            Decimal  @db.Decimal(10, 2)
+  salePrice        Decimal? @map("sale_price") @db.Decimal(10, 2)
+  sku              String?  @unique
+  stockQuantity    Int      @default(0) @map("stock_quantity")
+  categoryId       Int?     @map("category_id")
+  imageUrl         String?  @map("image_url")
+  gallery          Json?    // Array of image URLs
+  isActive         Boolean  @default(true) @map("is_active")
+  isFeatured       Boolean  @default(false) @map("is_featured")
+  metaTitle        String?  @map("meta_title")
+  metaDescription  String?  @map("meta_description")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model ServiceCategory {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  services Service[]
+
+  @@map("service_categories")
+}
+
+model Service {
+  id               Int      @id @default(autoincrement())
+  name             String
+  slug             String   @unique
+  description      String?
+  shortDescription String?  @map("short_description")
+  price            Decimal? @db.Decimal(10, 2)
+  duration         Int?     // dakika cinsinden
+  imageUrl         String?  @map("image_url")
+  isActive         Boolean  @default(true) @map("is_active")
+  isFeatured       Boolean  @default(false) @map("is_featured")
+  metaTitle        String?  @map("meta_title")
+  metaDescription  String?  @map("meta_description")
+  serviceCategoryId Int?    @map("service_category_id") // Yeni alan
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  serviceCategory ServiceCategory? @relation(fields: [serviceCategoryId], references: [id]) // İlişki
+
+  orderItems OrderItem[]
+
+  @@map("services")
+}
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  orderNumber     String        @unique @map("order_number")
+  userId          Int?          @map("user_id")
+  customerName    String        @map("customer_name")
+  customerEmail   String        @map("customer_email")
+  customerPhone   String        @map("customer_phone")
+  customerAddress String        @map("customer_address")
+  subtotal        Decimal       @db.Decimal(10, 2)
+  taxAmount       Decimal       @default(0) @map("tax_amount") @db.Decimal(10, 2)
+  shippingAmount  Decimal       @default(0) @map("shipping_amount") @db.Decimal(10, 2)
+  totalAmount     Decimal       @map("total_amount") @db.Decimal(10, 2)
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING) @map("payment_status")
+  paymentMethod   String?       @map("payment_method")
+  izicoPaymentId  String?       @map("izico_payment_id")
+  notes           String?
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  user       User?       @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int     @map("order_id")
+  productId Int?    @map("product_id")
+  serviceId Int?    @map("service_id")
+  name      String
+  price     Decimal @db.Decimal(10, 2)
+  quantity  Int
+  total     Decimal @db.Decimal(10, 2)
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+  service Service? @relation(fields: [serviceId], references: [id])
+
+  @@map("order_items")
+}
+
+model Page {
+  id              Int       @id @default(autoincrement())
+  title           String
+  slug            String    @unique
+  content         String?
+  excerpt         String?
+  status          PageStatus @default(DRAFT)
+  metaTitle       String?   @map("meta_title")
+  metaDescription String?   @map("meta_description")
+  featuredImage   String?   @map("featured_image")
+  template        String    @default("default")
+  sortOrder       Int       @default(0) @map("sort_order")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@map("pages")
+}
+
+model MenuItem {
+  id        Int      @id @default(autoincrement())
+  title     String
+  url       String
+  parentId  Int?     @map("parent_id")
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  target    String   @default("_self")
+  cssClass  String?  @map("css_class")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  parent   MenuItem?  @relation("MenuItemParent", fields: [parentId], references: [id])
+  children MenuItem[] @relation("MenuItemParent")
+
+  @@map("menu_items")
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String?
+  type      String   @default("text")
+  groupName String   @default("general") @map("group_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model BlogPost {
+  id              Int       @id @default(autoincrement())
+  title           String
+  slug            String    @unique
+  content         String?
+  excerpt         String?
+  featuredImage   String?   @map("featured_image")
+  status          PageStatus @default(DRAFT)
+  authorId        Int?      @map("author_id")
+  metaTitle       String?   @map("meta_title")
+  metaDescription String?   @map("meta_description")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  author User? @relation(fields: [authorId], references: [id])
+
+  @@map("blog_posts")
+}
+
+model Gallery {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  imageUrl    String   @map("image_url")
+  altText     String?  @map("alt_text")
+  category    String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("gallery")
+}
+
+model ContactMessage {
+  id        Int               @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  status    ContactStatus     @default(UNREAD)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  @@map("contact_messages")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ContactStatus {
+  UNREAD
+  READ
+  REPLIED
+}
