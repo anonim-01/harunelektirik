@@ -1,0 +1,30 @@
+name: harun-elektrik
+description: HARUN ELEKTRİK | Profesyonel Elektrik Hizmetleri
+root: ./
+
+commands:
+  dev: npm run dev
+  build: npm run build
+  preview: npm run preview
+
+env:
+  DATABASE_URL: "file:./dev.db"
+  NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+  NEXTAUTH_URL: "http://localhost:3000"
+
+files:
+  - prisma/schema.prisma
+  - prisma/seed.ts
+  - .env
+  - next.config.js
+  - package.json
+  - tsconfig.json
+  - app/layout.tsx
+  - app/page.tsx
+  - components/ServiceCard.tsx
+  - lib/prisma.ts
+  - lib/data.ts
+
+preview:
+  port: 3000
+  command: npm run dev
