@@ -1,594 +1,352 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, type Prisma } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient()
 
+const adminPassword = process.env.ADMIN_PASSWORD || "admin123" // Default password for local dev
+const hashedPassword = bcrypt.hashSync(adminPassword, 10)
+
 async function main() {
-  console.log("🌱 HARUN ELEKTRİK veritabanı seed işlemi başlıyor...")
+  console.log(`Start seeding ...`)
 
-  // İlk admin kullanıcısı
-  const hashedPassword = await bcrypt.hash("admin123", 10)
-
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@harunelektrik.com" },
+  // Create Admin User
+  const adminUser = await prisma.adminUser.upsert({
+    where: { username: "admin" },
     update: {},
     create: {
-      email: "admin@harunelektrik.com",
+      username: "admin",
       password: hashedPassword,
-      name: "Admin",
-      role: "ADMIN",
+    },
+  })
+  console.log(`Created/Updated admin user with id: ${adminUser.id}`)
+
+  // Create/Update Pages
+  const pagesData: Prisma.PageCreateOrConnectArgs["create"][] = [
+    {
+      slug: "hakkimizda",
+      title: "Hakkımızda",
+      content: `
+        <p><strong>HARUN ELEKTRİK</strong> olarak, İstanbul genelinde elektrik arızaları, tesisat kurulumu, avize montajı, topraklama hattı çekimi, elektrik panosu kurulumu ve güvenlik kamera sistemleri gibi geniş bir yelpazede profesyonel hizmetler sunmaktayız. Yılların verdiği tecrübe ve uzman ekibimizle, güvenli ve kaliteli çözümler üretmekteyiz.</p>
+        <p>Müşteri memnuniyetini her zaman ön planda tutarak, 7/24 kesintisiz hizmet anlayışıyla acil durumlarınızda dahi yanınızdayız. En son teknoloji ekipmanlarımız ve güncel bilgilerimizle, elektrikle ilgili tüm ihtiyaçlarınıza hızlı ve etkili çözümler sunuyoruz.</p>
+        <p>Bize ulaşmak için: <strong>+90 554 500 00 61</strong> numaralı telefondan arayabilir veya WhatsApp üzerinden canlı destek alabilirsiniz. Elektrik işlerinizde güvenilir ve profesyonel bir partner arıyorsanız, HARUN ELEKTRİK doğru adres!</p>
+        <p>Hizmetlerimiz hakkında daha fazla bilgi almak veya randevu oluşturmak için web sitemizi ziyaret edebilir veya doğrudan bizimle iletişime geçebilirsiniz.</p>
+      `,
+    },
+    {
+      slug: "iletisim",
+      title: "İletişim",
+      content: `
+        <p>Bize ulaşmak için aşağıdaki iletişim bilgilerini kullanabilirsiniz:</p>
+        <ul>
+          <li><strong>Telefon:</strong> +90 554 500 00 61</li>
+          <li><strong>E-posta:</strong> info@harunelektrik.com</li>
+          <li><strong>Adres:</strong> 3 Farklı Elektrik Şubemiz İle Tüm İstanbul Geneline Profesyonel Hizmet Veriyoruz</li>
+          <li><strong>WhatsApp Destek:</strong> <a href="https://wa.me/905545000061" target="_blank" rel="noopener noreferrer">+90 554 500 00 61</a></li>
+        </ul>
+        <p>Sorularınız, talepleriniz veya acil durumlarınız için bize dilediğiniz zaman ulaşabilirsiniz. Ekibimiz en kısa sürede size geri dönüş yapacaktır.</p>
+      `,
+    },
+    // Add other pages if necessary, e.g., 'blog'
+  ]
+
+  for (const pageData of pagesData) {
+    await prisma.page.upsert({
+      where: { slug: pageData.slug },
+      update: { content: pageData.content, title: pageData.title },
+      create: pageData,
+    })
+    console.log(`Created/Updated page: ${pageData.title}`)
+  }
+
+  // Page Content
+  await prisma.pageContent.upsert({
+    where: { pageName: "about-us" },
+    update: {
+      content: `
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">HARUN ELEKTRİK Hakkında</h2>
+        <p class="text-lg text-gray-700 mb-4">
+          Harun Elektrik olarak, İstanbul genelinde elektrik sektöründe uzun yıllardır hizmet vermekteyiz.
+          Müşteri memnuniyetini her zaman ön planda tutarak, kaliteli ve güvenilir çözümler sunmayı
+          ilke edindik. Uzman ekibimiz ve geniş hizmet ağımızla, elektrik arızalarından tesisat
+          yenilemeye, aydınlatma çözümlerinden güvenlik sistemlerine kadar geniş bir yelpazede
+          profesyonel destek sağlıyoruz.
+        </p>
+        <p class="text-lg text-gray-700 mb-4">
+          Teknolojiyi yakından takip eden ve sürekli kendini geliştiren bir anlayışla, en güncel
+          ekipmanları ve yöntemleri kullanarak hızlı ve etkili çözümler üretiyoruz. Acil durumlar için
+          7/24 ulaşılabilir olmamız, müşterilerimizin her an güvende hissetmesini sağlamaktadır.
+        </p>
+        <p class="text-lg text-gray-700">
+          Harun Elektrik olarak amacımız, sadece elektrik sorunlarını çözmek değil, aynı zamanda
+          güvenli, verimli ve sürdürülebilir elektrik sistemleri kurarak yaşam kalitenizi artırmaktır.
+          Bize güvenin, elektrik işlerinizi profesyonellere bırakın.
+        </p>
+      `,
+    },
+    create: {
+      pageName: "about-us",
+      content: `
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">HARUN ELEKTRİK Hakkında</h2>
+        <p class="text-lg text-gray-700 mb-4">
+          Harun Elektrik olarak, İstanbul genelinde elektrik sektöründe uzun yıllardır hizmet vermekteyiz.
+          Müşteri memnuniyetini her zaman ön planda tutarak, kaliteli ve güvenilir çözümler sunmayı
+          ilke edindik. Uzman ekibimiz ve geniş hizmet ağımızla, elektrik arızalarından tesisat
+          yenilemeye, aydınlatma çözümlerinden güvenlik sistemlerine kadar geniş bir yelpazede
+          profesyonel destek sağlıyoruz.
+        </p>
+        <p class="text-lg text-gray-700 mb-4">
+          Teknolojiyi yakından takip eden ve sürekli kendini geliştiren bir anlayışla, en güncel
+          ekipmanları ve yöntemleri kullanarak hızlı ve etkili çözümler üretiyoruz. Acil durumlar için
+          7/24 ulaşılabilir olmamız, müşterilerimizin her an güvende hissetmesini sağlamaktadır.
+        </p>
+        <p class="text-lg text-gray-700">
+          Harun Elektrik olarak amacımız, sadece elektrik sorunlarını çözmek değil, aynı zamanda
+          güvenli, verimli ve sürdürülebilir elektrik sistemleri kurarak yaşam kalitenizi artırmaktır.
+          Bize güvenin, elektrik işlerinizi profesyonellere bırakın.
+        </p>
+      `,
+    },
+  })
+  console.log("Page content seeded.")
+
+  // Settings
+  await prisma.setting.upsert({
+    where: { key: "siteName" },
+    update: { value: "HARUN ELEKTRİK" },
+    create: { key: "siteName", value: "HARUN ELEKTRİK" },
+  })
+  await prisma.setting.upsert({
+    where: { key: "contactPhone" },
+    update: { value: "0534 519 9055" },
+    create: { key: "contactPhone", value: "0534 519 9055" },
+  })
+  await prisma.setting.upsert({
+    where: { key: "contactEmail" },
+    update: { value: "info@harunelektrik.com" },
+    create: { key: "contactEmail", value: "info@harunelektrik.com" },
+  })
+  await prisma.setting.upsert({
+    where: { key: "contactAddress" },
+    update: { value: "3 Farklı Elektrik Şubemiz İle Tüm İstanbul Geneline Profesyonel Hizmet Veriyoruz" },
+    create: {
+      key: "contactAddress",
+      value: "3 Farklı Elektrik Şubemiz İle Tüm İstanbul Geneline Profesyonel Hizmet Veriyoruz",
+    },
+  })
+  console.log("Settings seeded.")
+
+  // Service Categories
+  const canakAnten = await prisma.serviceCategory.upsert({
+    where: { slug: "canak-anten-servisi" },
+    update: {},
+    create: {
+      name: "ÇANAK ANTEN SERVİSİ",
+      slug: "canak-anten-servisi",
+      description: "Çanak anten kurulumu ve tamiri hizmetleri.",
+      imageUrl: "/images/canak-anten.jpg",
     },
   })
 
-  // Kategoriler (Ürünler için)
-  const categories = await Promise.all([
-    prisma.category.upsert({
-      where: { slug: "elektrik-malzemeleri" },
-      update: {},
-      create: {
-        name: "Elektrik Malzemeleri",
-        slug: "elektrik-malzemeleri",
-        description: "Elektrik tesisatı için gerekli malzemeler",
-        sortOrder: 1,
-      },
-    }),
-    prisma.category.upsert({
-      where: { slug: "aydinlatma" },
-      update: {},
-      create: {
-        name: "Aydınlatma",
-        slug: "aydinlatma",
-        description: "Avize, aplik ve aydınlatma ürünleri",
-        sortOrder: 2,
-      },
-    }),
-    prisma.category.upsert({
-      where: { slug: "guvenlik-sistemleri" },
-      update: {},
-      create: {
-        name: "Güvenlik Sistemleri",
-        slug: "guvenlik-sistemleri",
-        description: "Güvenlik kameraları ve alarm sistemleri",
-        sortOrder: 3,
-      },
-    }),
-    prisma.category.upsert({
-      where: { slug: "kablo-aksesuarlar" },
-      update: {},
-      create: {
-        name: "Kablo ve Aksesuarlar",
-        slug: "kablo-aksesuarlar",
-        description: "Elektrik kabloları ve aksesuarları",
-        sortOrder: 4,
-      },
-    }),
-    prisma.category.upsert({
-      where: { slug: "elektrikli-arac-sarj" },
-      update: {},
-      create: {
-        name: "Elektrikli Araç Şarj",
-        slug: "elektrikli-arac-sarj",
-        description: "Elektrikli araç şarj istasyonları",
-        sortOrder: 5,
-      },
-    }),
-  ])
+  const merkeziUydu = await prisma.serviceCategory.upsert({
+    where: { slug: "merkezi-uydu-sistemi" },
+    update: {},
+    create: {
+      name: "MERKEZİ UYDU SİSTEMİ",
+      slug: "merkezi-uydu-sistemi",
+      description: "Merkezi uydu sistemleri kurulumu ve arıza giderme.",
+      imageUrl: "/images/merkezi-uydu.jpg",
+    },
+  })
 
-  // Hizmet Kategorileri (Yeni)
-  const serviceCategories = await Promise.all([
-    prisma.serviceCategory.upsert({
-      where: { slug: "canak-anten-servisi" },
-      update: {},
-      create: { name: "ÇANAK ANTEN SERVİSİ", slug: "canak-anten-servisi", sortOrder: 1 },
-    }),
-    prisma.serviceCategory.upsert({
-      where: { slug: "merkezi-uydu-sistemi" },
-      update: {},
-      create: { name: "MERKEZİ UYDU SİSTEMİ", slug: "merkezi-uydu-sistemi", sortOrder: 2 },
-    }),
-    prisma.serviceCategory.upsert({
-      where: { slug: "guvenlik-kamera-sistemi" },
-      update: {},
-      create: { name: "GÜVENLİK KAMERA SİSTEMİ", slug: "guvenlik-kamera-sistemi", sortOrder: 3 },
-    }),
-    prisma.serviceCategory.upsert({
-      where: { slug: "televizyon-tamiri" },
-      update: {},
-      create: { name: "TELEVİZYON TAMİRİ", slug: "televizyon-tamiri", sortOrder: 4 },
-    }),
-    prisma.serviceCategory.upsert({
-      where: { slug: "network-internet-servisi" },
-      update: {},
-      create: { name: "NETWORK İNTERNET SERVİSİ", slug: "network-internet-servisi", sortOrder: 5 },
-    }),
-  ])
+  const guvenlikKamera = await prisma.serviceCategory.upsert({
+    where: { slug: "guvenlik-kamera-sistemi" },
+    update: {},
+    create: {
+      name: "GÜVENLİK KAMERA SİSTEMİ",
+      slug: "guvenlik-kamera-sistemi",
+      description: "Güvenlik kamera sistemleri kurulumu ve bakımı.",
+      imageUrl: "/images/guvenlik-kamera.jpg",
+    },
+  })
 
-  // Hizmetler (Mevcut ve Yeni Eklenenler)
-  const servicesData = [
-    // ÇANAK ANTEN SERVİSİ
+  const televizyonTamiri = await prisma.serviceCategory.upsert({
+    where: { slug: "televizyon-tamiri" },
+    update: {},
+    create: {
+      name: "TELEVİZYON TAMİRİ",
+      slug: "televizyon-tamiri",
+      description: "Televizyon tamiri ve montaj hizmetleri.",
+      imageUrl: "/images/televizyon-tamiri.jpg",
+    },
+  })
+
+  const networkInternet = await prisma.serviceCategory.upsert({
+    where: { slug: "network-internet-servisi" },
+    update: {},
+    create: {
+      name: "NETWORK İNTERNET SERVİSİ",
+      slug: "network-internet-servisi",
+      description: "Network ve internet altyapı hizmetleri.",
+      imageUrl: "/images/network-internet.jpg",
+    },
+  })
+  console.log("Service categories seeded.")
+
+  // Services
+  const servicesData: Prisma.ServiceCreateInput[] = [
     {
-      name: "Anten Kurulumu",
-      slug: "anten-kurulumu",
-      description: "Profesyonel anten kurulum hizmetleri.",
-      serviceCategoryId: serviceCategories[0].id,
+      name: "Elektrik Arıza Tespiti ve Onarımı",
+      description: "Ev ve iş yerlerindeki elektrik arızalarının hızlı ve güvenli tespiti ve onarımı.",
+      imageUrl: "/images/elektrik-ariza.jpg",
+      slug: "elektrik-ariza",
     },
     {
-      name: "Çanak Anten Kurulumu",
-      slug: "canak-anten-kurulumu",
-      description: "Yeni çanak anten kurulumu ve ayarı.",
-      serviceCategoryId: serviceCategories[0].id,
-    },
-    {
-      name: "Uydu Servisi Uyducu",
-      slug: "uydu-servisi-uyducu",
-      description: "Uydu sistemleri için genel servis ve bakım.",
-      serviceCategoryId: serviceCategories[0].id,
-    },
-    // MERKEZİ UYDU SİSTEMİ
-    {
-      name: "Anten Kablosu Çekme",
-      slug: "anten-kablosu-cekme",
-      description: "Yeni anten kablosu çekimi ve tesisatı.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "Çift LNB Bağlama",
-      slug: "cift-lnb-baglama",
-      description: "Çift LNB kurulumu ile daha fazla kanal seçeneği.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "D-Smart Arızaları",
-      slug: "d-smart-arizalari",
-      description: "D-Smart uydu alıcısı arızalarının giderilmesi.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "Dijiturk Arızaları",
-      slug: "dijiturk-arizalari",
-      description: "Digitürk uydu alıcısı arızalarının giderilmesi.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "IP TV Kurulumu",
-      slug: "ip-tv-kurulumu",
-      description: "IP TV sistemlerinin kurulumu ve yapılandırması.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "LNB Kurulumu",
-      slug: "lnb-kurulumu",
-      description: "LNB değişimi ve kurulumu.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "TV Kanal Ayarlama",
-      slug: "tv-kanal-ayarlama",
-      description: "Televizyon kanal ayarı ve sıralaması.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "Uydu Kablosu Uzatma",
-      slug: "uydu-kablosu-uzatma",
-      description: "Uydu kablosu uzatma ve ekleme hizmetleri.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "Uydu Kurulumu",
-      slug: "uydu-kurulumu",
-      description: "Uydu sistemlerinin genel kurulumu.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "Uydu Servisi",
-      slug: "uydu-servisi",
-      description: "Uydu sistemleri için genel servis hizmeti.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    {
-      name: "Yan Odaya Uydu Hattı Çekme",
-      slug: "yan-odaya-uydu-hatti-cekme",
-      description: "Ek odalara uydu hattı çekimi.",
-      serviceCategoryId: serviceCategories[1].id,
-    },
-    // GÜVENLİK KAMERA SİSTEMİ
-    {
-      name: "Apartman Kamera Sistemleri Kurulumu",
-      slug: "apartman-kamera-sistemleri-kurulumu",
-      description: "Apartmanlar için güvenlik kamera sistemleri kurulumu.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "Bebek Veya Bakıcı Kamera Sistemleri",
-      slug: "bebek-bakici-kamera-sistemleri",
-      description: "Bebek ve bakıcı izleme kamera sistemleri.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "Ev Kamera Sistemleri Kurulumu",
-      slug: "ev-kamera-sistemleri-kurulumu",
-      description: "Evler için güvenlik kamera sistemleri kurulumu.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "Güvenlik Kamerası Değişimi",
-      slug: "guvenlik-kamerasi-degisimi",
-      description: "Mevcut güvenlik kamerasının değişimi.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "Güvenlik Kamerası Kablo Arıza Tespiti",
-      slug: "guvenlik-kamerasi-kablo-ariza-tespiti",
-      description: "Güvenlik kamerası kablo arızalarının tespiti.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "Güvenlik Kamerası Kurulumu",
-      slug: "guvenlik-kamerasi-kurulumu",
-      description: "Yeni güvenlik kamerası kurulumu.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "Güvenlik Kamerası Montajı",
-      slug: "guvenlik-kamerasi-montaji",
-      description: "Güvenlik kamerasının montajı.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "IP Kamera Sistemleri Kurulumu",
-      slug: "ip-kamera-sistemleri-kurulumu",
-      description: "IP tabanlı kamera sistemlerinin kurulumu.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "İşyeri Ve Ofis Kamera Sistemleri Kurulumu",
-      slug: "isyeri-ofis-kamera-sistemleri-kurulumu",
-      description: "İşyerleri ve ofisler için kamera sistemleri kurulumu.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    {
-      name: "Kamera Sistemleri Bakımı",
-      slug: "kamera-sistemleri-bakimi",
-      description: "Kamera sistemlerinin periyodik bakımı.",
-      serviceCategoryId: serviceCategories[2].id,
-    },
-    // TELEVİZYON TAMİRİ
-    {
-      name: "LCD TV Montajı",
-      slug: "lcd-tv-montaji",
-      description: "LCD televizyon montaj hizmetleri.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Smart TV Arızaları",
-      slug: "smart-tv-arizalari",
-      description: "Smart TV'lerdeki yazılımsal ve donanımsal arızaların giderilmesi.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon (TV) Kurulumu",
-      slug: "televizyon-tv-kurulumu",
-      description: "Televizyon kurulumu ve ilk ayarları.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Ana Kart Arızası Tamiri",
-      slug: "televizyon-ana-kart-arizasi-tamiri",
-      description: "Televizyon ana kart arızalarının tamiri.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Besleme Kablosu Yenileme",
-      slug: "televizyon-besleme-kablosu-yenileme",
-      description: "Televizyon besleme kablosunun yenilenmesi.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Duvar Montajı",
-      slug: "televizyon-duvar-montaji",
-      description: "Televizyonun duvara monte edilmesi.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Ekran Değişimi",
-      slug: "televizyon-ekran-degisimi",
-      description: "Televizyon ekranının değişimi.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Ekran Koruyucu Takma",
-      slug: "televizyon-ekran-koruyucu-takma",
-      description: "Televizyon ekranına koruyucu takma hizmeti.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Format Atma",
-      slug: "televizyon-format-atma",
-      description: "Televizyona format atma ve sıfırlama.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Kanal Yükleme",
-      slug: "televizyon-kanal-yukleme",
-      description: "Televizyona kanal yükleme ve güncelleme.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon LED Panel Değişimi",
-      slug: "televizyon-led-panel-degisimi",
-      description: "Televizyon LED panel değişimi.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Ses Sorunları Tamiri",
-      slug: "televizyon-ses-sorunlari-tamiri",
-      description: "Televizyon ses sorunlarının tamiri.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Sinyal Tuner Aşırı Yüklenme Sorunları Tamiri",
-      slug: "televizyon-sinyal-tuner-asiri-yuklenme-tamiri",
-      description: "Televizyon sinyal ve tuner aşırı yüklenme sorunlarının tamiri.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Tuner Arızası Tamiri",
-      slug: "televizyon-tuner-arizasi-tamiri",
-      description: "Televizyon tuner arızalarının tamiri.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Uydu Cihazı Bağlama",
-      slug: "televizyon-uydu-cihazi-baglama",
-      description: "Televizyona uydu cihazı bağlama.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyon Uydu Format Atma",
-      slug: "televizyon-uydu-format-atma",
-      description: "Televizyon uydu ayarlarını sıfırlama.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    {
-      name: "Televizyona Telefondan Görüntü Yansıtıcı Bağlama",
-      slug: "televizyona-telefon-goruntu-yansitici-baglama",
-      description: "Telefondan televizyona görüntü yansıtıcı bağlama.",
-      serviceCategoryId: serviceCategories[3].id,
-    },
-    // NETWORK İNTERNET SERVİSİ
-    {
-      name: "Bina İçin İnternet Tesisatı",
-      slug: "bina-icin-internet-tesisati",
-      description: "Bina içi internet kablolama ve tesisat hizmetleri.",
-      serviceCategoryId: serviceCategories[4].id,
-    },
-    {
-      name: "İnternet Ana Hat Onarımı",
-      slug: "internet-ana-hat-onarimi",
-      description: "İnternet ana hat arızalarının onarımı.",
-      serviceCategoryId: serviceCategories[4].id,
-    },
-    {
-      name: "Modem Satışı",
-      slug: "modem-satisi",
-      description: "Çeşitli modemlerin satışı ve kurulumu.",
-      serviceCategoryId: serviceCategories[4].id,
-    },
-    {
-      name: "VDSL ve ADSL Modem Arızası Çözümü",
-      slug: "vdsl-adsl-modem-arizasi-cozumu",
-      description: "VDSL ve ADSL modem arızalarının giderilmesi.",
-      serviceCategoryId: serviceCategories[4].id,
-    },
-    // Önceki hizmetler (kategorilere atanmış)
-    {
-      name: "Elektrik Sigorta Arızaları",
-      slug: "elektrik-sigorta-arizalari",
-      description:
-        "Elektrik sigortası arızaları çoğu zaman elektrikle çalışan eşyalarımıza zarar verebilecek duruma gelebilir. Düşük gerilim ve yüksek gerilim sebebi neticesinde sigortalar atabilmektedir.",
-      price: 200,
-      isFeatured: true,
-      imageUrl: "/images/sigorta-arizasi.jpg",
-      serviceCategoryId: serviceCategories[0].id, // Örnek atama
-    },
-    {
-      name: "Avize Montajı",
-      slug: "avize-montaji",
-      description:
-        "Avizeler yaşadığımız her alanı günışığı gibi aydınlatmak için kullanılan modern tasarımlara ve zevklere göre üretilen aksesuar tarzında aydınlatma gereçleridir.",
-      price: 150,
-      isFeatured: true,
+      name: "Avize Montajı ve Demontajı",
+      description: "Her türlü avize ve aydınlatma armatürünün profesyonel montaj ve demontaj hizmetleri.",
       imageUrl: "/images/avize-montaji.jpg",
-      serviceCategoryId: serviceCategories[0].id, // Örnek atama
+      slug: "avize-montaji",
     },
     {
-      name: "Elektrik Tesisatı Bakım & Yenileme",
-      slug: "elektrik-tesisati-bakim-yenileme",
-      description:
-        "Elektrik tesisatları göz önünde olmayabilir. Taşıdığı riskten dolayı yetkisiz müdahaleler sonucu istenmeyen kazalara sebebiyet vermesi ile biliriz.",
-      price: 500,
-      isFeatured: true,
+      name: "Yeni Elektrik Tesisatı Kurulumu",
+      description: "Sıfırdan elektrik tesisatı çekimi ve mevcut tesisatın yenilenmesi.",
       imageUrl: "/images/elektrik-tesisati.jpg",
-      serviceCategoryId: serviceCategories[0].id, // Örnek atama
-    },
-    {
-      name: "Telefon Santral Kurulumu",
-      slug: "telefon-santral-kurulumu",
-      description:
-        "Telefon santrallerinin kurulumları tarafımızdan profesyonelce yapılmaktadır. Karel santral kurulumu, Multitek santral kurulumu, Telesis santral kurulumu.",
-      price: 800,
-      isFeatured: false,
-      imageUrl: "/images/santral-kurulumu.jpg",
-      serviceCategoryId: serviceCategories[2].id, // Örnek atama
+      slug: "elektrik-tesisati",
     },
     {
       name: "Topraklama Hattı Çekimi",
-      slug: "topraklama-hatti-cekimi",
-      description:
-        "Topraklama hattı, prizlerde bulunabilecek herhangi bir kaçak olması durumunda elektrikli cihazlara bu durumu yansıtmamak için koruma işlemi yapar.",
-      price: 300,
-      isFeatured: false,
-      imageUrl: "/images/topraklama.jpg",
-      serviceCategoryId: serviceCategories[0].id, // Örnek atama
+      description: "Elektrik güvenliği için topraklama hattı kurulumu ve kontrolü.",
+      imageUrl: "/images/topraklama-hatti.jpg",
+      slug: "topraklama-hatti",
     },
     {
-      name: "Elektrik Panosu Kurulumu",
-      slug: "elektrik-panosu-kurulumu",
-      description:
-        "Elektrik panosu kurulumları riskli ve zor bir işlemdir. Bir yapının en önemli bağlantısı elektrik panosudur.",
-      price: 600,
-      isFeatured: true,
-      imageUrl: "/images/pano-kurulumu.jpg",
-      serviceCategoryId: serviceCategories[0].id, // Örnek atama
-    },
-  ]
-
-  for (const service of servicesData) {
-    await prisma.service.upsert({
-      where: { slug: service.slug },
-      update: service,
-      create: service,
-    })
-  }
-
-  // Ürünler
-  const products = [
-    {
-      name: "Elektrik Panosu 12 Devre",
-      slug: "elektrik-panosu-12-devre",
-      description: "Kaliteli 12 devre elektrik panosu, güvenlik sigortaları dahil",
-      price: 1500,
-      stockQuantity: 25,
-      categoryId: categories[0].id,
+      name: "Elektrik Panosu Kurulumu ve Bakımı",
+      description: "Modern ve güvenli elektrik panolarının kurulumu, bakımı ve revizyonu.",
       imageUrl: "/images/elektrik-panosu.jpg",
-      isFeatured: true,
+      slug: "elektrik-panosu",
     },
     {
-      name: "LED Avize Modern Tasarım",
-      slug: "led-avize-modern",
-      description: "Modern tasarım LED avize, uzaktan kumandalı",
-      price: 350,
-      stockQuantity: 12,
-      categoryId: categories[1].id,
-      imageUrl: "/images/led-avize.jpg",
-      isFeatured: true,
+      name: "Çanak Anten Kurulumu ve Ayarı",
+      description: "Uydu sistemleri için çanak anten kurulumu, ayarı ve sinyal optimizasyonu.",
+      imageUrl: "/images/canak-anten.jpg",
+      slug: "canak-anten",
     },
     {
-      name: "IP Güvenlik Kamerası 4MP",
-      slug: "ip-guvenlik-kamerasi-4mp",
-      description: "Yüksek çözünürlüklü IP güvenlik kamerası, gece görüş özellikli",
-      price: 800,
-      stockQuantity: 8,
-      categoryId: categories[2].id,
-      imageUrl: "/images/guvenlik-kamerasi.jpg",
-      isFeatured: true,
+      name: "Merkezi Uydu Sistemleri",
+      description: "Bina ve siteler için merkezi uydu sistemleri kurulumu ve bakımı.",
+      imageUrl: "/images/merkezi-uydu.jpg",
+      slug: "merkezi-uydu",
     },
     {
-      name: "NYM Kablo 3x2.5",
-      slug: "nym-kablo-3x2-5",
-      description: "Kaliteli NYM elektrik kablosu 3x2.5mm",
-      price: 25,
-      stockQuantity: 100,
-      categoryId: categories[3].id,
-      imageUrl: "/images/elektrik-kablo.jpg",
-      isFeatured: false,
+      name: "Güvenlik Kamera Sistemleri",
+      description: "Ev ve iş yerleri için IP ve Analog güvenlik kamera sistemleri kurulumu.",
+      imageUrl: "/images/guvenlik-kamera.jpg",
+      slug: "guvenlik-kamera",
     },
     {
-      name: "Elektrikli Araç Şarj İstasyonu",
-      slug: "elektrikli-arac-sarj-istasyonu",
-      description: "22kW hızlı şarj istasyonu, akıllı ödeme sistemi",
-      price: 15000,
-      stockQuantity: 3,
-      categoryId: categories[4].id,
-      imageUrl: "/images/sarj-istasyonu.jpg",
-      isFeatured: true,
+      name: "Televizyon Tamiri ve Montajı",
+      description: "Her marka ve model televizyonun tamiri ve duvara montaj hizmetleri.",
+      imageUrl: "/images/televizyon-tamiri.jpg",
+      slug: "televizyon-tamiri",
+    },
+    {
+      name: "Network ve İnternet Altyapısı",
+      description: "Ev ve ofisler için kablolu/kablosuz network altyapısı kurulumu ve sorun giderme.",
+      imageUrl: "/images/network-internet.jpg",
+      slug: "network-internet",
     },
   ]
 
-  for (const product of products) {
+  for (const serviceData of servicesData) {
+    await prisma.service.upsert({
+      where: { slug: serviceData.slug },
+      update: { ...serviceData },
+      create: serviceData,
+    })
+    console.log(`Created/Updated service: ${serviceData.name}`)
+  }
+
+  console.log("Services seeded.")
+
+  // Product Categories
+  const aydinlatma = await prisma.productCategory.upsert({
+    where: { slug: "aydinlatma" },
+    update: {},
+    create: {
+      name: "Aydınlatma Ürünleri",
+      slug: "aydinlatma",
+      description: "Ev ve iş yerleri için modern aydınlatma çözümleri.",
+      imageUrl: "/images/aydinlatma.jpg",
+    },
+  })
+
+  const kablo = await prisma.productCategory.upsert({
+    where: { slug: "kablo-ve-iletkenler" },
+    update: {},
+    create: {
+      name: "Kablo ve İletkenler",
+      slug: "kablo-ve-iletkenler",
+      description: "Elektrik tesisatında kullanılan çeşitli kablo ve iletkenler.",
+      imageUrl: "/images/kablo.jpg",
+    },
+  })
+  console.log("Product categories seeded.")
+
+  // Products
+  const productsData: Prisma.ProductCreateInput[] = [
+    {
+      name: "LED Ampul E27 9W",
+      description: "Yüksek verimli, uzun ömürlü LED ampul. E27 duy, 9W güç tüketimi.",
+      price: 49.9,
+      imageUrl: "/images/aydinlatma.jpg",
+      category: "Aydınlatma",
+      stock: 150,
+    },
+    {
+      name: "Bakır Elektrik Kablosu (100m)",
+      description: "Yüksek kaliteli, dayanıklı bakır elektrik kablosu. 100 metre rulo.",
+      price: 299.5,
+      imageUrl: "/images/kablo.jpg",
+      category: "Kablolar",
+      stock: 80,
+    },
+    {
+      name: "Akıllı Priz",
+      description: "Uzaktan kontrol edilebilir, enerji tüketimi izlenebilir akıllı priz.",
+      price: 129.0,
+      imageUrl: "/placeholder.svg?height=400&width=400",
+      category: "Akıllı Ev",
+      stock: 75,
+    },
+    {
+      name: "Hareket Sensörlü Lamba",
+      description: "Otomatik açılıp kapanan, enerji tasarruflu hareket sensörlü lamba.",
+      price: 89.9,
+      imageUrl: "/placeholder.svg?height=400&width=400",
+      category: "Aydınlatma",
+      stock: 120,
+    },
+    {
+      name: "Topraklı Uzatma Kablosu (5m)",
+      description: "Güvenli kullanım için topraklı, 5 metre uzunluğunda uzatma kablosu.",
+      price: 59.9,
+      imageUrl: "/placeholder.svg?height=400&width=400",
+      category: "Kablolar",
+      stock: 200,
+    },
+  ]
+
+  for (const productData of productsData) {
     await prisma.product.upsert({
-      where: { slug: product.slug },
-      update: {},
-      create: product,
+      where: { name: productData.name },
+      update: { ...productData },
+      create: productData,
     })
+    console.log(`Created/Updated product: ${productData.name}`)
   }
 
-  // Sayfalar
-  const pages = [
-    {
-      title: "Ana Sayfa",
-      slug: "ana-sayfa",
-      content: "<h1>HARUN ELEKTRİK</h1><p>Profesyonel elektrik hizmetleri</p>",
-      status: "PUBLISHED" as const,
-      metaTitle: "HARUN ELEKTRİK - Profesyonel Elektrik Hizmetleri",
-      metaDescription:
-        "İstanbul genelinde 7/24 elektrik hizmetleri. Elektrik arıza, avize montajı, elektrik tesisatı ve daha fazlası.",
-    },
-    {
-      title: "Hakkımızda",
-      slug: "hakkimizda",
-      content:
-        "<h1>Hakkımızda</h1><p>Elektrikçilik günümüzde popüler olmak ile birlikte tecrübe gereken işlerin başında gelir. Uzun yılların verdiği tecrübe ve gelişmiş ekipmanlarımız ile profesyonel hizmet sunuyoruz.</p>",
-      status: "PUBLISHED" as const,
-      metaTitle: "Hakkımızda - HARUN ELEKTRİK",
-      metaDescription: "HARUN ELEKTRİK hakkında bilgi edinin. Tecrübeli ekibimiz ve kaliteli hizmetimiz.",
-    },
-    {
-      title: "İletişim",
-      slug: "iletisim",
-      content: "<h1>İletişim</h1><p>Bize ulaşın</p>",
-      status: "PUBLISHED" as const,
-      metaTitle: "İletişim - HARUN ELEKTRİK",
-      metaDescription: "HARUN ELEKTRİK ile iletişime geçin. Telefon, WhatsApp ve e-posta iletişim bilgileri.",
-    },
-  ]
+  console.log("Products seeded.")
 
-  for (const page of pages) {
-    await prisma.page.upsert({
-      where: { slug: page.slug },
-      update: {},
-      create: page,
-    })
-  }
-
-  // Ayarlar
-  const settings = [
-    { key: "site_title", value: "HARUN ELEKTRİK", groupName: "general" },
-    { key: "site_description", value: "Profesyonel Elektrik Hizmetleri", groupName: "general" },
-    { key: "contact_phone", value: "0534 519 9055", groupName: "contact" },
-    { key: "contact_email", value: "info@harunelektrik.com", groupName: "contact" },
-    {
-      key: "contact_address",
-      value: "3 Farklı Elektrik Şubemiz İle Tüm İstanbul Geneline Profesyonel Hizmet Veriyoruz",
-      groupName: "contact",
-    },
-    { key: "whatsapp_number", value: "905345199055", groupName: "integrations" },
-    {
-      key: "whatsapp_message",
-      value: "Merhaba! HARUN ELEKTRİK hakkında bilgi almak istiyorum.",
-      groupName: "integrations",
-    },
-    { key: "izico_api_key", value: "", groupName: "payment" },
-    { key: "izico_secret_key", value: "", groupName: "payment" },
-    { key: "izico_test_mode", value: "1", groupName: "payment" },
-  ]
-
-  for (const setting of settings) {
-    await prisma.setting.upsert({
-      where: { key: setting.key },
-      update: {},
-      create: setting,
-    })
-  }
-
-  console.log("✅ Seed işlemi tamamlandı!")
-  console.log(`👤 Admin kullanıcısı: ${admin.email}`)
-  console.log(`📦 ${categories.length} ürün kategorisi oluşturuldu`)
-  console.log(`🛠️ ${serviceCategories.length} hizmet kategorisi oluşturuldu`)
-  console.log(`🛠️ ${servicesData.length} hizmet eklendi/güncellendi`)
-  console.log(`📱 ${products.length} ürün eklendi`)
-  console.log(`📄 ${pages.length} sayfa oluşturuldu`)
-  console.log(`⚙️ ${settings.length} ayar yapılandırıldı`)
+  console.log(`Seeding finished.`)
 }
 
 main()

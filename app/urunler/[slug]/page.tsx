@@ -2,31 +2,26 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { dbService } from "@/lib/database"
 import { notFound } from "next/navigation"
-import ProductDetailContent from "./ProductDetailPageClient"
-
-export async function generateStaticParams() {
-  const products = await dbService.getAllProducts()
-  return products.map((product) => ({
-    slug: product.slug,
-  }))
-}
+import ProductDetailPageClient from "./ProductDetailPageClient"
+import WhatsAppButton from "@/components/whatsapp-button"
 
 export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
-  const product = await dbService.getProductBySlug(slug)
+  const product = await dbService.getProductBySlug(params.slug)
 
   if (!product) {
-    notFound() // Ürün bulunamazsa 404 sayfası göster
+    notFound()
   }
 
-  // Client Component'te useCart kullanabilmek için bu kısmı ayırıyoruz
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <SiteHeader />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <ProductDetailContent product={product} />
+        <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+          <ProductDetailPageClient product={product} />
+        </div>
       </main>
       <SiteFooter />
+      <WhatsAppButton phoneNumber="+905545000061" />
     </div>
   )
 }

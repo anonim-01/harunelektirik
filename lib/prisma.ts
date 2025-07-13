@@ -8,11 +8,22 @@ import { PrismaClient } from "@prisma/client"
  */
 const hasDbUrl = !!process.env.DATABASE_URL
 
-const globalForPrisma = global as unknown as { prisma?: PrismaClient }
-
-export const prisma: PrismaClient | undefined = hasDbUrl ? (globalForPrisma.prisma ?? new PrismaClient()) : undefined
-
-// Re-use the same instance in development
-if (hasDbUrl && process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma
+// add prisma to the NodeJS global type
+declare global {
+  var prismaGlobal: PrismaClient | undefined
 }
+
+const globalForPrisma = global as unknown as { prismaGlobal?: PrismaClient }
+
+const prisma =
+  globalForPrisma.prismaGlobal ||
+  new PrismaClient({
+    log: ["query", "info", "warn", "error"],
+  })
+
+// Prevent multiple instances of Prisma Client in development
+if (hasDbUrl && process.env.NODE_ENV !== "production") {
+  globalForPrisma.prismaGlobal = prisma
+}
+
+export default prisma

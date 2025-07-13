@@ -1,71 +1,48 @@
+import Link from "next/link"
+import Image from "next/image"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { dbService } from "@/lib/database"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import WhatsAppButton from "@/components/whatsapp-button"
 
 export default async function ServicesPage() {
-  const serviceCategories = await dbService.getAllServiceCategories()
+  const services = await dbService.getAllServices()
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <SiteHeader />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">Hizmetlerimiz</h1>
-        <p className="text-lg text-gray-600 mb-12 text-center max-w-2xl mx-auto">
-          Elektrik arızalarından tesisat yenilemeye, aydınlatma çözümlerinden güvenlik sistemlerine kadar geniş bir
-          yelpazede profesyonel elektrik hizmetleri sunuyoruz.
-        </p>
-
-        {serviceCategories.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-lg text-gray-600 mb-6">Şu anda görüntülenecek hizmet kategorisi bulunmamaktadır.</p>
-            <Button asChild className="bg-red-600 hover:bg-red-700 text-white text-lg px-8 py-4">
-              <Link href="/">Ana Sayfaya Dön</Link>
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
-            {serviceCategories.map((category) => (
-              <Card key={category.id} className="shadow-lg h-full flex flex-col">
-                <CardHeader className="bg-red-600 text-white py-4 rounded-t-lg">
-                  <CardTitle className="text-xl font-bold text-center">{category.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 flex-grow">
-                  {category.services.length === 0 ? (
-                    <p className="text-gray-600 text-center py-4">Bu kategoride hizmet bulunmamaktadır.</p>
-                  ) : (
-                    <ul className="space-y-2">
-                      {category.services.map((service) => (
-                        <li key={service.id}>
-                          <Link
-                            href={`/hizmetlerimiz/${service.slug}`}
-                            className="block text-gray-700 hover:text-red-600 hover:underline transition-colors"
-                          >
-                            {service.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+        <h1 className="text-4xl font-bold text-gray-900 mb-12 text-center">Hizmetlerimiz</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service) => (
+            <Card
+              key={service.id}
+              className="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200"
+            >
+              <Link href={`/hizmetlerimiz/${service.slug}`}>
+                <div className="relative w-full h-48">
+                  <Image
+                    src={service.imageUrl || "/placeholder.svg?height=300&width=400"}
+                    alt={service.name}
+                    layout="fill"
+                    objectFit="cover"
+                    className="transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+                <CardContent className="p-6 bg-white">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{service.name}</h3>
+                  <p className="text-gray-600 text-sm line-clamp-3">{service.description}</p>
+                  <Button className="mt-4 bg-red-600 hover:bg-red-700 text-white">Detayları Gör</Button>
                 </CardContent>
-                {category.services.length > 0 && (
-                  <div className="p-4 border-t">
-                    <Button asChild variant="link" className="text-red-600 hover:text-red-700 p-0 h-auto">
-                      <Link href={`/hizmetlerimiz/${category.slug}`}>
-                        Tümünü Gör <ArrowRight className="ml-1 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                )}
-              </Card>
-            ))}
-          </div>
-        )}
+              </Link>
+            </Card>
+          ))}
+        </div>
       </main>
       <SiteFooter />
+      <WhatsAppButton phoneNumber="+905545000061" />
     </div>
   )
 }

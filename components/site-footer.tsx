@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Zap, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from "lucide-react"
+import { Zap, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube, PhoneIcon as Whatsapp } from "lucide-react"
 
 export function SiteFooter() {
   return (
@@ -15,16 +15,16 @@ export function SiteFooter() {
             Profesyonel elektrik hizmetleri ve kaliteli elektrik malzemeleri ile İstanbul genelinde 7/24 yanınızdayız.
           </p>
           <div className="flex space-x-4 mt-4">
-            <a href="#" aria-label="Facebook" className="hover:text-red-600">
+            <a href="#" aria-label="Facebook" className="hover:text-red-600 transition-colors duration-200">
               <Facebook className="h-6 w-6" />
             </a>
-            <a href="#" aria-label="Instagram" className="hover:text-red-600">
+            <a href="#" aria-label="Instagram" className="hover:text-red-600 transition-colors duration-200">
               <Instagram className="h-6 w-6" />
             </a>
-            <a href="#" aria-label="Twitter" className="hover:text-red-600">
+            <a href="#" aria-label="Twitter" className="hover:text-red-600 transition-colors duration-200">
               <Twitter className="h-6 w-6" />
             </a>
-            <a href="#" aria-label="Youtube" className="hover:text-red-600">
+            <a href="#" aria-label="Youtube" className="hover:text-red-600 transition-colors duration-200">
               <Youtube className="h-6 w-6" />
             </a>
           </div>
@@ -35,27 +35,27 @@ export function SiteFooter() {
           <h3 className="text-lg font-semibold text-white mb-4">Hızlı Linkler</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/hakkimizda" className="hover:text-red-600">
+              <Link href="/hakkimizda" className="hover:text-red-600 transition-colors duration-200">
                 Hakkımızda
               </Link>
             </li>
             <li>
-              <Link href="/hizmetlerimiz" className="hover:text-red-600">
+              <Link href="/hizmetlerimiz" className="hover:text-red-600 transition-colors duration-200">
                 Hizmetlerimiz
               </Link>
             </li>
             <li>
-              <Link href="/urunler" className="hover:text-red-600">
+              <Link href="/urunler" className="hover:text-red-600 transition-colors duration-200">
                 Ürünler
               </Link>
             </li>
             <li>
-              <Link href="/blog" className="hover:text-red-600">
+              <Link href="/blog" className="hover:text-red-600 transition-colors duration-200">
                 Blog
               </Link>
             </li>
             <li>
-              <Link href="/iletisim" className="hover:text-red-600">
+              <Link href="/iletisim" className="hover:text-red-600 transition-colors duration-200">
                 İletişim
               </Link>
             </li>
@@ -67,27 +67,33 @@ export function SiteFooter() {
           <h3 className="text-lg font-semibold text-white mb-4">Hizmetlerimiz</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/hizmetlerimiz/elektrik-ariza" className="hover:text-red-600">
+              <Link href="/hizmetlerimiz/elektrik-ariza" className="hover:text-red-600 transition-colors duration-200">
                 Elektrik Arıza
               </Link>
             </li>
             <li>
-              <Link href="/hizmetlerimiz/avize-montaji" className="hover:text-red-600">
+              <Link href="/hizmetlerimiz/avize-montaji" className="hover:text-red-600 transition-colors duration-200">
                 Avize Montajı
               </Link>
             </li>
             <li>
-              <Link href="/hizmetlerimiz/elektrik-tesisati" className="hover:text-red-600">
+              <Link
+                href="/hizmetlerimiz/elektrik-tesisati"
+                className="hover:text-red-600 transition-colors duration-200"
+              >
                 Elektrik Tesisatı
               </Link>
             </li>
             <li>
-              <Link href="/hizmetlerimiz/topraklama-hatti" className="hover:text-red-600">
+              <Link
+                href="/hizmetlerimiz/topraklama-hatti"
+                className="hover:text-red-600 transition-colors duration-200"
+              >
                 Topraklama Hattı
               </Link>
             </li>
             <li>
-              <Link href="/hizmetlerimiz/elektrik-panosu" className="hover:text-red-600">
+              <Link href="/hizmetlerimiz/elektrik-panosu" className="hover:text-red-600 transition-colors duration-200">
                 Elektrik Panosu Kurulumu
               </Link>
             </li>
@@ -100,7 +106,18 @@ export function SiteFooter() {
           <ul className="space-y-2 text-sm">
             <li className="flex items-center">
               <Phone className="h-5 w-5 mr-2 text-red-600" />
-              <span>0534 519 9055</span>
+              <span>0554 500 00 61</span>
+            </li>
+            <li className="flex items-center">
+              <Whatsapp className="h-5 w-5 mr-2 text-red-600" />
+              <a
+                href="https://wa.me/905545000061"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-red-600 transition-colors duration-200"
+              >
+                WhatsApp Destek
+              </a>
             </li>
             <li className="flex items-center">
               <Mail className="h-5 w-5 mr-2 text-red-600" />
