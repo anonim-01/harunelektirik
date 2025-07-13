@@ -13,20 +13,21 @@ interface Product {
   name: string
   description: string
   price: number
-  imageUrl: string | null
+  imageUrl?: string
   slug: string
   category?: {
     id: string
     name: string
   }
   isFeatured?: boolean
+  stock?: number
 }
 
 interface ProductDetailPageClientProps {
   product: Product
 }
 
-export function ProductDetailPageClient({ product }: ProductDetailPageClientProps) {
+export default function ProductDetailPageClient({ product }: ProductDetailPageClientProps) {
   const [quantity, setQuantity] = useState(1)
   const { addToCart } = useCart()
 
@@ -40,8 +41,17 @@ export function ProductDetailPageClient({ product }: ProductDetailPageClientProp
     })
   }
 
-  const increaseQuantity = () => setQuantity((prev) => prev + 1)
-  const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1))
+  const incrementQuantity = () => {
+    if (product.stock && quantity < product.stock) {
+      setQuantity(quantity + 1)
+    }
+  }
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1)
+    }
+  }
 
   return (
     <main className="flex-1">
@@ -133,11 +143,23 @@ export function ProductDetailPageClient({ product }: ProductDetailPageClientProp
                     <div className="flex items-center space-x-4">
                       <span className="text-lg font-semibold text-gray-900">Adet:</span>
                       <div className="flex items-center border border-gray-300 rounded-lg">
-                        <Button variant="ghost" size="sm" onClick={decreaseQuantity} className="px-3 py-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={decrementQuantity}
+                          disabled={quantity <= 1}
+                          className="px-3 py-2"
+                        >
                           <Minus className="h-4 w-4" />
                         </Button>
                         <span className="px-4 py-2 text-lg font-semibold">{quantity}</span>
-                        <Button variant="ghost" size="sm" onClick={increaseQuantity} className="px-3 py-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={incrementQuantity}
+                          disabled={product.stock ? quantity >= product.stock : false}
+                          className="px-3 py-2"
+                        >
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
@@ -149,6 +171,7 @@ export function ProductDetailPageClient({ product }: ProductDetailPageClientProp
                     <Button
                       onClick={handleAddToCart}
                       className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 text-lg"
+                      disabled={!product.stock || product.stock <= 0}
                     >
                       <ShoppingBag className="h-5 w-5 mr-2" />
                       Sepete Ekle

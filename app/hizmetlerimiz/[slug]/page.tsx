@@ -1,12 +1,15 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { dbService } from "@/lib/database"
+import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { notFound } from "next/navigation"
-import { PhoneCall, Clock, CheckCircle, ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { SiteHeader } from "@/components/site-header"
+import { SiteFooter } from "@/components/site-footer"
+import { dbService } from "@/lib/database"
+import { PhoneCall, ArrowLeft, CheckCircle } from "lucide-react"
+import WhatsAppButton from "@/components/whatsapp-button"
+
+export const dynamic = "force-dynamic"
 
 interface ServiceDetailPageProps {
   params: {
@@ -21,8 +24,10 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
     notFound()
   }
 
+  const features = ["Profesyonel ekip", "Kaliteli malzeme", "Hızlı hizmet", "Uygun fiyat", "Garanti", "7/24 destek"]
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen">
       <SiteHeader />
       <main className="flex-1">
         {/* Hero Section */}
@@ -35,175 +40,105 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
             quality={100}
             className="z-0"
           />
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-center z-10 p-4">
-            <div className="max-w-3xl space-y-4">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight drop-shadow-lg">
-                {service.name}
-              </h1>
-              <p className="text-lg md:text-xl text-gray-200 drop-shadow-md">Profesyonel ve güvenilir hizmet</p>
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-center z-10">
+            <div className="max-w-4xl px-4">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">{service.name}</h1>
+              <p className="text-xl text-gray-200">Profesyonel ve Güvenilir Hizmet</p>
             </div>
           </div>
         </section>
 
         {/* Service Details */}
-        <section className="py-16">
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="mb-8">
-              <Link href="/hizmetlerimiz">
-                <Button variant="outline" className="mb-6 bg-transparent">
-                  <ArrowLeft className="h-4 w-4 mr-2" /> Hizmetlere Geri Dön
-                </Button>
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              {/* Main Content */}
-              <div className="lg:col-span-2">
-                <Card className="p-8 shadow-lg border border-gray-200 bg-white">
-                  <CardContent className="p-0">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-6">Hizmet Detayları</h2>
-                    <div className="prose prose-lg text-gray-700 space-y-4">
-                      <p>{service.description}</p>
-
-                      <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">Hizmet Özellikleri</h3>
-                      <ul className="space-y-2">
-                        <li className="flex items-center">
-                          <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                          Profesyonel ve deneyimli ekip
-                        </li>
-                        <li className="flex items-center">
-                          <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                          Kaliteli malzeme kullanımı
-                        </li>
-                        <li className="flex items-center">
-                          <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                          Güvenlik standartlarına uygunluk
-                        </li>
-                        <li className="flex items-center">
-                          <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                          Hızlı ve etkili çözümler
-                        </li>
-                        <li className="flex items-center">
-                          <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                          İş sonrası temizlik
-                        </li>
-                      </ul>
-
-                      <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">Çalışma Süreci</h3>
-                      <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                        <li>İlk görüşme ve ihtiyaç analizi</li>
-                        <li>Keşif ve teknik değerlendirme</li>
-                        <li>Fiyat teklifi sunumu</li>
-                        <li>Randevu planlaması</li>
-                        <li>Profesyonel uygulama</li>
-                        <li>Test ve kontrol</li>
-                        <li>Teslim ve garanti belgesi</li>
-                      </ol>
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <Link href="/hizmetlerimiz" className="inline-flex items-center text-red-600 hover:text-red-700 mb-4">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Tüm Hizmetlere Dön
+                </Link>
               </div>
 
-              {/* Sidebar */}
-              <div className="space-y-6">
-                {/* Price Card */}
-                {service.price && (
-                  <Card className="p-6 shadow-lg border border-gray-200 bg-white">
-                    <CardContent className="p-0 text-center">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Fiyat Bilgisi</h3>
-                      <div className="text-3xl font-bold text-red-600 mb-4">
-                        {service.price.toFixed(0)} TL'den başlayan fiyatlarla
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <Card className="p-8 shadow-lg">
+                    <CardContent className="p-0">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-6">Hizmet Detayları</h2>
+                      <div className="prose prose-lg text-gray-700 max-w-none">
+                        <p>{service.description}</p>
+
+                        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-4">Hizmet Özellikleri</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {features.map((feature, index) => (
+                            <div key={index} className="flex items-center">
+                              <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-4">Neden Bizi Seçmelisiniz?</h3>
+                        <ul className="list-disc list-inside space-y-2">
+                          <li>15+ yıllık sektör deneyimi</li>
+                          <li>Sertifikalı ve uzman teknisyenler</li>
+                          <li>En kaliteli malzemeler</li>
+                          <li>Şeffaf ve uygun fiyatlandırma</li>
+                          <li>İşçilik garantisi</li>
+                          <li>Müşteri memnuniyeti odaklı hizmet</li>
+                        </ul>
                       </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        * Fiyatlar işin kapsamına göre değişiklik gösterebilir
-                      </p>
-                      <Link href="tel:+905545000061">
-                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white mb-3">
-                          <PhoneCall className="h-4 w-4 mr-2" /> Hemen Ara
-                        </Button>
-                      </Link>
-                      <Link href="https://wa.me/905545000061">
-                        <Button
-                          variant="outline"
-                          className="w-full border-red-600 text-red-600 hover:bg-red-50 bg-transparent"
-                        >
-                          WhatsApp Destek
-                        </Button>
-                      </Link>
                     </CardContent>
                   </Card>
-                )}
+                </div>
 
-                {/* Contact Card */}
-                <Card className="p-6 shadow-lg border border-gray-200 bg-white">
-                  <CardContent className="p-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">İletişim</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center">
-                        <PhoneCall className="h-5 w-5 text-red-600 mr-3" />
-                        <span className="text-gray-700">+90 554 500 00 61</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-5 w-5 text-red-600 mr-3" />
-                        <span className="text-gray-700">7/24 Hizmet</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div>
+                  <Card className="p-6 shadow-lg sticky top-8">
+                    <CardContent className="p-0">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Hemen Teklif Alın</h3>
+                      {service.price && (
+                        <div className="mb-6">
+                          <span className="text-3xl font-bold text-red-600">{service.price.toFixed(0)} TL</span>
+                          <span className="text-gray-500 text-sm ml-2">başlangıç fiyatı</span>
+                        </div>
+                      )}
 
-                {/* Features Card */}
-                <Card className="p-6 shadow-lg border border-gray-200 bg-white">
-                  <CardContent className="p-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Avantajlarımız</h3>
-                    <ul className="space-y-2">
-                      <li className="flex items-center text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-                        Ücretsiz keşif
-                      </li>
-                      <li className="flex items-center text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-                        Garanti belgesi
-                      </li>
-                      <li className="flex items-center text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-                        Hızlı randevu
-                      </li>
-                      <li className="flex items-center text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-                        Temiz çalışma
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+                      <div className="space-y-4">
+                        <Link href="tel:+905545000061">
+                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                            <PhoneCall className="h-4 w-4 mr-2" />
+                            Hemen Ara: +90 554 500 00 61
+                          </Button>
+                        </Link>
+
+                        <Link href="https://wa.me/905545000061">
+                          <Button
+                            variant="outline"
+                            className="w-full border-green-600 text-green-600 hover:bg-green-600 hover:text-white bg-transparent"
+                          >
+                            WhatsApp ile İletişim
+                          </Button>
+                        </Link>
+                      </div>
+
+                      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 className="font-semibold text-gray-900 mb-2">Hizmet Bilgileri</h4>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          <li>• Ücretsiz keşif</li>
+                          <li>• Aynı gün hizmet</li>
+                          <li>• İstanbul geneli</li>
+                          <li>• 7/24 acil servis</li>
+                        </ul>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-16 bg-gradient-to-r from-red-600 to-red-700 text-white text-center">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Bu Hizmeti Almak İstiyorsunuz?</h2>
-            <p className="text-lg md:text-xl mb-8">Hemen bize ulaşın, ücretsiz keşif yapalım!</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="tel:+905545000061">
-                <Button className="bg-white text-red-600 hover:bg-gray-100 px-8 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                  <PhoneCall className="h-5 w-5 mr-2" /> Hemen Ara: +90 554 500 00 61
-                </Button>
-              </Link>
-              <Link href="https://wa.me/905545000061">
-                <Button
-                  variant="outline"
-                  className="border-2 border-white text-white hover:bg-white hover:text-red-600 px-8 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-transparent"
-                >
-                  WhatsApp Destek
-                </Button>
-              </Link>
             </div>
           </div>
         </section>
       </main>
       <SiteFooter />
+      <WhatsAppButton phoneNumber="+905545000061" />
     </div>
   )
 }

@@ -3,16 +3,15 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { CartProvider } from "@/context/cart-context"
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "HARUN ELEKTRİK - Güvenilir Elektrik Hizmetleri",
+  title: "HARUN ELEKTRİK - Profesyonel Elektrik Hizmetleri",
   description:
-    "İstanbul genelinde 7/24 elektrik arıza tamiri, elektrik tesisatı, avize montajı ve teknik hizmetler. Profesyonel ekip, kaliteli malzeme, uygun fiyat.",
-  keywords:
-    "elektrik, elektrikçi, arıza tamiri, elektrik tesisatı, avize montajı, İstanbul elektrikçi, acil elektrik servisi",
+    "İstanbul genelinde 7/24 elektrik arıza tamiri, avize montajı, elektrik tesisatı ve teknik hizmetler. Güvenilir ve hızlı çözümler için HARUN ELEKTRİK.",
+  keywords: "elektrik, elektrikçi, arıza tamiri, avize montajı, elektrik tesisatı, İstanbul, acil elektrik servisi",
     generator: 'v0.dev'
 }
 

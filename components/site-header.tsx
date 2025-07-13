@@ -14,6 +14,7 @@ export function SiteHeader() {
     { name: "Hakkımızda", href: "/hakkimizda" },
     { name: "Hizmetlerimiz", href: "/hizmetlerimiz" },
     { name: "Ürünlerimiz", href: "/urunler" },
+    { name: "İletişim", href: "/iletisim" },
   ]
 
   return (
@@ -25,7 +26,10 @@ export function SiteHeader() {
             <div className="bg-red-600 p-2 rounded-lg">
               <Zap className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">HARUN ELEKTRİK</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg text-gray-900">HARUN</span>
+              <span className="text-sm text-red-600 font-semibold -mt-1">ELEKTRİK</span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -34,19 +38,19 @@ export function SiteHeader() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-600 hover:text-red-600 transition-colors font-medium"
+                className="text-gray-700 hover:text-red-600 font-medium transition-colors"
               >
                 {item.name}
               </Link>
             ))}
           </nav>
 
-          {/* Contact Button */}
+          {/* Call Button */}
           <div className="hidden md:flex items-center space-x-4">
             <Link href="tel:+905545000061">
               <Button className="bg-red-600 hover:bg-red-700 text-white">
                 <Phone className="h-4 w-4 mr-2" />
-                +90 554 500 00 61
+                Hemen Ara
               </Button>
             </Link>
           </div>
@@ -56,6 +60,7 @@ export function SiteHeader() {
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
+                <span className="sr-only">Menüyü aç</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
@@ -64,14 +69,14 @@ export function SiteHeader() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="text-lg font-medium text-gray-600 hover:text-red-600 transition-colors"
+                    className="text-lg font-medium text-gray-700 hover:text-red-600 transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.name}
                   </Link>
                 ))}
                 <div className="pt-4 border-t">
-                  <Link href="tel:+905545000061">
+                  <Link href="tel:+905545000061" onClick={() => setIsOpen(false)}>
                     <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
                       <Phone className="h-4 w-4 mr-2" />
                       +90 554 500 00 61
