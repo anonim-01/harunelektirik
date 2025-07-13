@@ -28,107 +28,96 @@ export type OrderWithItems = Order & {
   user: User | null
 }
 
-export class DatabaseService {
-  // Ürün işlemleri
-  async getAllProducts(): Promise<ProductWithCategory[]> {
-    return prisma.product.findMany({
-      include: {
-        category: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    })
-  }
+export const dbService = {
+  /* PRODUCTS --------------------------------------------------------- */
+  async getAllProducts() {
+    if (!prisma) return []
+    return prisma.product.findMany({ where: { isActive: true } })
+  },
 
   async getProductById(id: number): Promise<ProductWithCategory | null> {
+    if (!prisma) return null
     return prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
       },
     })
-  }
+  },
 
-  async getProductBySlug(slug: string): Promise<ProductWithCategory | null> {
-    return prisma.product.findUnique({
-      where: { slug },
-      include: {
-        category: true,
-      },
-    })
-  }
+  async getProductBySlug(slug: string) {
+    if (!prisma) return null
+    return prisma.product.findUnique({ where: { slug, isActive: true } })
+  },
 
   async createProduct(data: Prisma.ProductCreateInput): Promise<Product> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.product.create({
       data,
     })
-  }
+  },
 
   async updateProduct(id: number, data: Prisma.ProductUpdateInput): Promise<Product> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.product.update({
       where: { id },
       data,
     })
-  }
+  },
 
   async deleteProduct(id: number): Promise<Product> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.product.delete({
       where: { id },
     })
-  }
+  },
 
-  // Hizmet işlemleri
-  async getAllServices(): Promise<ServiceWithCategory[]> {
-    return prisma.service.findMany({
-      include: {
-        serviceCategory: true, // Kategori bilgisini dahil et
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    })
-  }
+  /* SERVICES --------------------------------------------------------- */
+  async getAllServices() {
+    if (!prisma) return []
+    return prisma.service.findMany({ where: { isActive: true } })
+  },
 
   async getServiceById(id: number): Promise<ServiceWithCategory | null> {
+    if (!prisma) return null
     return prisma.service.findUnique({
       where: { id },
       include: {
         serviceCategory: true,
       },
     })
-  }
+  },
 
-  async getServiceBySlug(slug: string): Promise<ServiceWithCategory | null> {
-    return prisma.service.findUnique({
-      where: { slug },
-      include: {
-        serviceCategory: true,
-      },
-    })
-  }
+  async getServiceBySlug(slug: string) {
+    if (!prisma) return null
+    return prisma.service.findUnique({ where: { slug, isActive: true } })
+  },
 
   async createService(data: Prisma.ServiceCreateInput): Promise<Service> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.service.create({
       data,
     })
-  }
+  },
 
   async updateService(id: number, data: Prisma.ServiceUpdateInput): Promise<Service> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.service.update({
       where: { id },
       data,
     })
-  }
+  },
 
   async deleteService(id: number): Promise<Service> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.service.delete({
       where: { id },
     })
-  }
+  },
 
-  // Hizmet Kategorileri işlemleri
+  /* SERVICE CATEGORIES (if used) ------------------------------------- */
   async getAllServiceCategories(): Promise<ServiceCategory[]> {
+    if (!prisma) return []
     return prisma.serviceCategory.findMany({
       orderBy: {
         sortOrder: "asc",
@@ -140,9 +129,10 @@ export class DatabaseService {
         },
       },
     })
-  }
+  },
 
   async getServiceCategoryBySlug(slug: string): Promise<ServiceCategory | null> {
+    if (!prisma) return null
     return prisma.serviceCategory.findUnique({
       where: { slug },
       include: {
@@ -152,10 +142,11 @@ export class DatabaseService {
         },
       },
     })
-  }
+  },
 
-  // Sipariş işlemleri
+  /* ORDERS ----------------------------------------------------------- */
   async getAllOrders(): Promise<OrderWithItems[]> {
+    if (!prisma) return []
     return prisma.order.findMany({
       include: {
         orderItems: {
@@ -170,9 +161,10 @@ export class DatabaseService {
         createdAt: "desc",
       },
     })
-  }
+  },
 
   async getOrderById(id: number): Promise<OrderWithItems | null> {
+    if (!prisma) return null
     return prisma.order.findUnique({
       where: { id },
       include: {
@@ -185,9 +177,10 @@ export class DatabaseService {
         user: true,
       },
     })
-  }
+  },
 
   async getOrderByNumber(orderNumber: string): Promise<OrderWithItems | null> {
+    if (!prisma) return null
     return prisma.order.findUnique({
       where: { orderNumber },
       include: {
@@ -200,11 +193,12 @@ export class DatabaseService {
         user: true,
       },
     })
-  }
+  },
 
   async createOrder(
     data: Prisma.OrderCreateInput & { orderItems?: Prisma.OrderItemCreateManyOrderInput[] },
   ): Promise<Order> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     const { orderItems, ...orderData } = data
     return prisma.order.create({
       data: {
@@ -218,112 +212,124 @@ export class DatabaseService {
           : undefined,
       },
     })
-  }
+  },
 
   async updateOrder(id: number, data: Prisma.OrderUpdateInput): Promise<Order> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.order.update({
       where: { id },
       data,
     })
-  }
+  },
 
-  // Kategori işlemleri
-  async getAllCategories(): Promise<Category[]> {
-    return prisma.category.findMany({
-      orderBy: {
-        sortOrder: "asc",
-      },
-    })
-  }
+  /* CATEGORIES ------------------------------------------------------- */
+  async getAllCategories() {
+    if (!prisma) return []
+    return prisma.category.findMany({ where: { isActive: true } })
+  },
 
   async getCategoryById(id: number): Promise<Category | null> {
+    if (!prisma) return null
     return prisma.category.findUnique({
       where: { id },
     })
-  }
+  },
 
   async getCategoryBySlug(slug: string): Promise<Category | null> {
+    if (!prisma) return null
     return prisma.category.findUnique({
       where: { slug },
     })
-  }
+  },
 
-  // Sayfa işlemleri
+  /* PAGES ---------------------------------------------------------- */
   async getAllPages(): Promise<Page[]> {
+    if (!prisma) return []
     return prisma.page.findMany({
       orderBy: {
         sortOrder: "asc",
       },
     })
-  }
+  },
 
   async getPageById(id: number): Promise<Page | null> {
+    if (!prisma) return null
     return prisma.page.findUnique({
       where: { id },
     })
-  }
+  },
 
   async getPageBySlug(slug: string): Promise<Page | null> {
+    if (!prisma) return null
     return prisma.page.findUnique({
       where: { slug },
     })
-  }
+  },
 
   async createPage(data: Prisma.PageCreateInput): Promise<Page> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.page.create({
       data,
     })
-  }
+  },
 
   async updatePage(id: number, data: Prisma.PageUpdateInput): Promise<Page> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.page.update({
       where: { id },
       data,
     })
-  }
+  },
 
   async deletePage(id: number): Promise<Page> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.page.delete({
       where: { id },
     })
-  }
+  },
 
-  // Ayar işlemleri
+  /* SETTINGS --------------------------------------------------------- */
   async getSetting(key: string): Promise<Setting | null> {
+    if (!prisma) return null
     return prisma.setting.findUnique({
       where: { key },
     })
-  }
+  },
 
   async getSettingsByGroup(groupName: string): Promise<Setting[]> {
+    if (!prisma) return []
     return prisma.setting.findMany({
       where: { groupName },
     })
-  }
+  },
 
   async setSetting(key: string, value: string, type = "text", groupName = "general"): Promise<Setting> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.setting.upsert({
       where: { key },
       update: { value, type, groupName },
       create: { key, value, type, groupName },
     })
-  }
+  },
 
-  // Kullanıcı işlemleri
+  /* USERS ---------------------------------------------------------- */
   async getUserByEmail(email: string): Promise<User | null> {
+    if (!prisma) return null
     return prisma.user.findUnique({
       where: { email },
     })
-  }
+  },
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    if (!prisma) throw new Error("Prisma is not initialized")
     return prisma.user.create({
       data,
     })
-  }
+  },
 
-  // İstatistik işlemleri
+  /* STATS ---------------------------------------------------------- */
   async getStats() {
+    if (!prisma) return { totalProducts: 0, totalOrders: 0, totalRevenue: 0, totalCustomers: 0 }
     const [totalProducts, totalOrders, totalRevenue, totalCustomers] = await Promise.all([
       prisma.product.count({
         where: { isActive: true },
@@ -345,10 +351,11 @@ export class DatabaseService {
       totalRevenue: totalRevenue._sum.totalAmount?.toNumber() || 0,
       totalCustomers: totalCustomers.length,
     }
-  }
+  },
 
-  // Arama işlemleri
+  /* SEARCH --------------------------------------------------------- */
   async searchProducts(query: string): Promise<ProductWithCategory[]> {
+    if (!prisma) return []
     return prisma.product.findMany({
       where: {
         AND: [
@@ -366,9 +373,10 @@ export class DatabaseService {
         category: true,
       },
     })
-  }
+  },
 
   async searchServices(query: string): Promise<ServiceWithCategory[]> {
+    if (!prisma) return []
     return prisma.service.findMany({
       where: {
         AND: [
@@ -386,10 +394,11 @@ export class DatabaseService {
         serviceCategory: true,
       },
     })
-  }
+  },
 
-  // Öne çıkan ürün ve hizmetler
+  /* FEATURED PRODUCTS AND SERVICES ----------------------------------- */
   async getFeaturedProducts(): Promise<ProductWithCategory[]> {
+    if (!prisma) return []
     return prisma.product.findMany({
       where: {
         isActive: true,
@@ -400,9 +409,10 @@ export class DatabaseService {
       },
       take: 6,
     })
-  }
+  },
 
   async getFeaturedServices(): Promise<ServiceWithCategory[]> {
+    if (!prisma) return []
     return prisma.service.findMany({
       where: {
         isActive: true,
@@ -413,8 +423,5 @@ export class DatabaseService {
       },
       take: 6,
     })
-  }
+  },
 }
-
-// Singleton instance
-export const dbService = new DatabaseService()
