@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^3.9.1
+        specifier: 3.9.1
         version: 3.9.1(react-hook-form@7.60.0(react@18.0.0))
       '@prisma/client':
         specifier: latest
@@ -96,7 +96,7 @@ importers:
         specifier: latest
         version: 1.2.7(@types/react-dom@18.0.0)(@types/react@18.0.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       autoprefixer:
-        specifier: ^10.4.20
+        specifier: 10.4.20
         version: 10.4.20(postcss@8.5.0)
       bcryptjs:
         specifier: latest
@@ -129,7 +129,7 @@ importers:
         specifier: latest
         version: 0.4.6(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       prisma:
-        specifier: latest
+        specifier: 6.11.1
         version: 6.11.1(typescript@5.0.2)
       react:
         specifier: ^18
@@ -162,7 +162,7 @@ importers:
         specifier: latest
         version: 1.1.2(@types/react-dom@18.0.0)(@types/react@18.0.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       zod:
-        specifier: ^3.24.1
+        specifier: 3.24.1
         version: 3.24.1
     devDependencies:
       '@types/node':
@@ -178,7 +178,7 @@ importers:
         specifier: ^8.5
         version: 8.5.0
       tailwindcss:
-        specifier: ^3.4.17
+        specifier: 3.4.17
         version: 3.4.17
       typescript:
         specifier: ^5
