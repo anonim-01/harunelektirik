@@ -85,10 +85,17 @@ body {
 }
 
 @layer base {
+  html,
+  body {
+    min-height: 100%;
+    scroll-behavior: smooth;
+    @apply bg-background text-foreground antialiased;
+  }
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+}
+
+a {
+  @apply text-sky-500 hover:text-sky-600 transition-colors underline-offset-4 hover:underline;
 }
