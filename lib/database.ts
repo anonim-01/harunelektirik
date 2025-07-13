@@ -1,131 +1,120 @@
-import prisma from "./prisma"
-import type { Prisma } from "@prisma/client"
+import { prisma } from "./prisma"
 
 export const dbService = {
-  // AdminUser operations
-  async getAdminUserByUsername(username: string) {
-    return prisma.adminUser.findUnique({ where: { username } })
-  },
-
-  // Setting operations
-  async getSetting(key: string) {
-    return prisma.setting.findUnique({ where: { key } })
-  },
-  async updateSetting(key: string, value: string) {
-    return prisma.setting.upsert({
-      where: { key },
-      update: { value },
-      create: { key, value },
+  // Services
+  async getFeaturedServices() {
+    return await prisma.service.findMany({
+      where: { isFeatured: true },
+      take: 6,
+      orderBy: { createdAt: "desc" },
     })
   },
 
-  // ServiceCategory operations
-  async getAllServiceCategories() {
-    return prisma.serviceCategory.findMany({
+  async getAllServices() {
+    return await prisma.service.findMany({
+      orderBy: { name: "asc" },
+    })
+  },
+
+  async getServiceBySlug(slug: string) {
+    return await prisma.service.findUnique({
+      where: { slug },
+    })
+  },
+
+  async getServiceCategories() {
+    return await prisma.serviceCategory.findMany({
       include: {
-        services: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
+        services: true,
+      },
+      orderBy: { sortOrder: "asc" },
+    })
+  },
+
+  // Products
+  async getFeaturedProducts() {
+    return await prisma.product.findMany({
+      where: { isFeatured: true },
+      take: 6,
+      orderBy: { createdAt: "desc" },
+    })
+  },
+
+  async getAllProducts() {
+    return await prisma.product.findMany({
+      include: { category: true },
+      orderBy: { name: "asc" },
+    })
+  },
+
+  async getProductBySlug(slug: string) {
+    return await prisma.product.findUnique({
+      where: { slug },
+      include: { category: true },
+    })
+  },
+
+  async getProductCategories() {
+    return await prisma.category.findMany({
+      include: {
+        products: true,
+      },
+      orderBy: { sortOrder: "asc" },
+    })
+  },
+
+  // Pages
+  async getPageBySlug(slug: string) {
+    return await prisma.page.findUnique({
+      where: { slug },
+    })
+  },
+
+  async getPageContent(pageName: string) {
+    return await prisma.pageContent.findUnique({
+      where: { pageName },
+    })
+  },
+
+  // Settings
+  async getSetting(key: string) {
+    const setting = await prisma.setting.findUnique({
+      where: { key },
+    })
+    return setting?.value || null
+  },
+
+  async getSettings() {
+    const settings = await prisma.setting.findMany()
+    return settings.reduce(
+      (acc, setting) => {
+        acc[setting.key] = setting.value
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+  },
+
+  // Orders
+  async createOrder(orderData: any) {
+    return await prisma.order.create({
+      data: orderData,
+      include: {
+        items: true,
+      },
+    })
+  },
+
+  async getOrderById(id: string) {
+    return await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            product: true,
           },
-          orderBy: { name: "asc" },
         },
       },
-      orderBy: { name: "asc" },
-    })
-  },
-  async getServiceCategoryBySlug(slug: string) {
-    return prisma.serviceCategory.findUnique({
-      where: { slug },
-      include: { services: true },
-    })
-  },
-
-  // Service operations
-  async getAllServices() {
-    return prisma.service.findMany({
-      include: { category: true },
-      orderBy: { name: "asc" },
-    })
-  },
-  async getServiceBySlug(slug: string) {
-    return prisma.service.findUnique({
-      where: { slug },
-      include: { category: true },
-    })
-  },
-  async getFeaturedServices() {
-    return prisma.service.findMany({
-      where: { isFeatured: true },
-      take: 3, // Ana sayfada 3 öne çıkan hizmet göster
-      orderBy: { createdAt: "desc" },
-    })
-  },
-
-  // ProductCategory operations
-  async getAllProductCategories() {
-    return prisma.productCategory.findMany({
-      include: { products: true },
-      orderBy: { name: "asc" },
-    })
-  },
-  async getProductCategoryBySlug(slug: string) {
-    return prisma.productCategory.findUnique({
-      where: { slug },
-      include: { products: true },
-    })
-  },
-
-  // Product operations
-  async getAllProducts() {
-    return prisma.product.findMany({
-      include: { category: true },
-      orderBy: { name: "asc" },
-    })
-  },
-  async getProductBySlug(slug: string) {
-    return prisma.product.findUnique({
-      where: { slug },
-      include: { category: true },
-    })
-  },
-  async getFeaturedProducts() {
-    return prisma.product.findMany({
-      where: { isFeatured: true },
-      take: 6, // Ana sayfada 6 öne çıkan ürün göster
-      orderBy: { createdAt: "desc" },
-    })
-  },
-
-  // Order operations
-  async createOrder(data: Prisma.OrderCreateInput) {
-    return prisma.order.create({ data })
-  },
-  async updateOrder(id: string, data: Prisma.OrderUpdateInput) {
-    return prisma.order.update({ where: { id }, data })
-  },
-  async getOrderById(id: string) {
-    return prisma.order.findUnique({
-      where: { id },
-      include: { items: { include: { product: true } } },
-    })
-  },
-
-  // OrderItem operations
-  async createOrderItem(data: Prisma.OrderItemCreateInput) {
-    return prisma.orderItem.create({ data })
-  },
-
-  // PageContent operations
-  async getPageContent(pageName: string) {
-    return prisma.pageContent.findUnique({ where: { pageName } })
-  },
-  async updatePageContent(pageName: string, content: string) {
-    return prisma.pageContent.upsert({
-      where: { pageName },
-      update: { content },
-      create: { pageName, content },
     })
   },
 }
