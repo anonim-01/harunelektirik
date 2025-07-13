@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { dbService } from "@/lib/database"
+import { getProducts } from "@/lib/database"
 import { ShoppingBag, PhoneCall } from "lucide-react"
 import WhatsAppButton from "@/components/whatsapp-button"
 
 export const dynamic = "force-dynamic"
 
 export default async function ProductsPage() {
-  const products = await dbService.getAllProducts()
+  const products = await getProducts()
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -25,7 +25,7 @@ export default async function ProductsPage() {
             layout="fill"
             objectFit="cover"
             quality={100}
-            className="z-0"
+            className="z-0 brightness-[0.6]"
           />
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-center z-10">
             <div className="max-w-4xl px-4">
@@ -50,7 +50,7 @@ export default async function ProductsPage() {
                 <Card key={product.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-white">
                   <div className="relative w-full h-48">
                     <Image
-                      src={product.imageUrl || "/placeholder.svg?height=300&width=400"}
+                      src={product.image || "/placeholder.svg?height=300&width=400"}
                       alt={product.name}
                       layout="fill"
                       objectFit="cover"

@@ -1,15 +1,15 @@
 import Image from "next/image"
+import { getAboutUsContent, getStats } from "@/lib/database"
+import { CheckCircle } from "lucide-react"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { dbService } from "@/lib/database"
-import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, Users, Award, Clock } from "lucide-react"
 import WhatsAppButton from "@/components/whatsapp-button"
 
 export const dynamic = "force-dynamic"
 
 export default async function AboutPage() {
-  const pageContent = await dbService.getPageContent("hakkimizda")
+  const pageContent = await getAboutUsContent()
+  const stats = await getStats()
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -23,9 +23,9 @@ export default async function AboutPage() {
             layout="fill"
             objectFit="cover"
             quality={100}
-            className="z-0"
+            className="z-0 brightness-[0.6]"
           />
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-center z-10">
+          <div className="absolute inset-0 flex items-center justify-center text-center z-10">
             <div className="max-w-4xl px-4">
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Hakkımızda</h1>
               <p className="text-xl text-gray-200">HARUN ELEKTRİK - Güvenilir ve Profesyonel Elektrik Çözümleri</p>
@@ -40,13 +40,13 @@ export default async function AboutPage() {
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">HARUN ELEKTRİK Kimdir?</h2>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  {pageContent?.content ||
+                  {pageContent?.description ||
                     `
-                    HARUN ELEKTRİK olarak, İstanbul genelinde 15 yılı aşkın deneyimimizle 
-                    elektrik sektöründe güvenilir ve kaliteli hizmet sunmaktayız. 
-                    Müşteri memnuniyetini ön planda tutarak, 7/24 acil servis hizmeti 
-                    vermekteyiz.
-                  `}
+                  HARUN ELEKTRİK olarak, İstanbul genelinde 15 yılı aşkın deneyimimizle 
+                  elektrik sektöründe güvenilir ve kaliteli hizmet sunmaktayız. 
+                  Müşteri memnuniyetini ön planda tutarak, 7/24 acil servis hizmeti 
+                  vermekteyiz.
+                `}
                 </p>
               </div>
 
@@ -84,45 +84,37 @@ export default async function AboutPage() {
               Neden Bizi Tercih Etmelisiniz?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-0">
-                  <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="h-8 w-8 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">15+ Yıl Deneyim</h3>
-                  <p className="text-gray-600">Elektrik sektöründe 15 yılı aşkın deneyimimizle güvenilir hizmet</p>
-                </CardContent>
-              </Card>
+              <div className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow rounded-lg">
+                <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">15+ Yıl Deneyim</h3>
+                <p className="text-gray-600">Elektrik sektöründe 15 yılı aşkın deneyimimizle güvenilir hizmet</p>
+              </div>
 
-              <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-0">
-                  <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Clock className="h-8 w-8 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">7/24 Hizmet</h3>
-                  <p className="text-gray-600">Acil durumlar için günün her saati ulaşılabilir hızlı müdahale</p>
-                </CardContent>
-              </Card>
+              <div className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow rounded-lg">
+                <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">7/24 Hizmet</h3>
+                <p className="text-gray-600">Acil durumlar için günün her saati ulaşılabilir hızlı müdahale</p>
+              </div>
 
-              <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-0">
-                  <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="h-8 w-8 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Uzman Ekip</h3>
-                  <p className="text-gray-600">Sertifikalı ve deneyimli elektrik teknisyenleri ile kaliteli hizmet</p>
-                </CardContent>
-              </Card>
+              <div className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow rounded-lg">
+                <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Uzman Ekip</h3>
+                <p className="text-gray-600">Sertifikalı ve deneyimli elektrik teknisyenleri ile kaliteli hizmet</p>
+              </div>
 
-              <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-0">
-                  <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Award className="h-8 w-8 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Kalite Garantisi</h3>
-                  <p className="text-gray-600">Kullandığımız malzemeler ve işçilik için kalite garantisi</p>
-                </CardContent>
-              </Card>
+              <div className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-shadow rounded-lg">
+                <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Kalite Garantisi</h3>
+                <p className="text-gray-600">Kullandığımız malzemeler ve işçilik için kalite garantisi</p>
+              </div>
             </div>
           </div>
         </section>

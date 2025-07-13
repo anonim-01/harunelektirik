@@ -1,35 +1,20 @@
 import { NextResponse } from "next/server"
-import { dbService } from "@/lib/database"
-import bcrypt from "bcryptjs"
+import { sign } from "jsonwebtoken"
+import { PrismaClient } from "@prisma/client"
 
-export async function POST(request: Request) {
-  try {
-    const { email, password } = await request.json()
+const prisma = new PrismaClient()
 
-    if (!email || !password) {
-      return NextResponse.json({ message: "E-posta ve şifre gerekli." }, { status: 400 })
-    }
+export async function POST(req: Request) {
+  const { username, password } = await req.json()
 
-    const user = await dbService.getUserByEmail(email)
+  // Basit bir admin kontrolü, üretimde daha güvenli bir kimlik doğrulama kullanılmalıdır.
+  // Örneğin, veritabanından kullanıcı çekip şifreyi hashleyerek karşılaştırma.
+  const adminPassword = process.env.ADMIN_PASSWORD || "adminpassword" // .env'den veya varsayılan
 
-    if (!user) {
-      return NextResponse.json({ message: "Geçersiz e-posta veya şifre." }, { status: 401 })
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password)
-
-    if (!isPasswordValid) {
-      return NextResponse.json({ message: "Geçersiz e-posta veya şifre." }, { status: 401 })
-    }
-
-    // Başarılı giriş durumunda, burada bir oturum (session) oluşturulabilir.
-    // Şimdilik sadece başarılı yanıt dönüyoruz.
-    return NextResponse.json(
-      { message: "Giriş başarılı!", user: { id: user.id, email: user.email, name: user.name, role: user.role } },
-      { status: 200 },
-    )
-  } catch (error) {
-    console.error("Login API error:", error)
-    return NextResponse.json({ message: "Giriş sırasında bir hata oluştu." }, { status: 500 })
+  if (username === "admin" && password === adminPassword) {
+    const token = sign({ username: "admin" }, process.env.JWT_SECRET || "your_jwt_secret", { expiresIn: "1h" })
+    return NextResponse.json({ success: true, token })
+  } else {
+    return NextResponse.json({ success: false, message: "Invalid credentials" }, { status: 401 })
   }
 }

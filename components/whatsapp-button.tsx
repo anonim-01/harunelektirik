@@ -1,31 +1,25 @@
 "use client"
 
-import { MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { MessageCircle } from "lucide-react"
+import Link from "next/link"
 
 interface WhatsAppButtonProps {
   phoneNumber: string
-  message?: string
 }
 
-export default function WhatsAppButton({
-  phoneNumber,
-  message = "Merhaba, elektrik hizmetleriniz hakkında bilgi almak istiyorum.",
-}: WhatsAppButtonProps) {
-  const handleWhatsAppClick = () => {
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, "")}?text=${encodedMessage}`
-    window.open(whatsappUrl, "_blank")
-  }
-
+export default function WhatsAppButton({ phoneNumber }: WhatsAppButtonProps) {
   return (
-    <Button
-      onClick={handleWhatsAppClick}
-      className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
-      size="lg"
-    >
-      <MessageCircle className="h-6 w-6" />
-      <span className="sr-only">WhatsApp ile iletişime geç</span>
-    </Button>
+    <div className="fixed bottom-4 right-4 z-50">
+      <Link href={`https://wa.me/${phoneNumber}`} target="_blank" rel="noopener noreferrer">
+        <Button
+          className="bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg transition-all duration-300 flex items-center justify-center"
+          size="icon"
+          aria-label="WhatsApp Destek"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </Button>
+      </Link>
+    </div>
   )
 }

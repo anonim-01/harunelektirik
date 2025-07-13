@@ -1,352 +1,178 @@
-import { PrismaClient, type Prisma } from "@prisma/client"
-import bcrypt from "bcryptjs"
+import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
-const adminPassword = process.env.ADMIN_PASSWORD || "admin123" // Default password for local dev
-const hashedPassword = bcrypt.hashSync(adminPassword, 10)
-
 async function main() {
-  console.log(`Start seeding ...`)
+  // Clear existing data
+  await prisma.order.deleteMany()
+  await prisma.product.deleteMany()
+  await prisma.service.deleteMany()
+  await prisma.settings.deleteMany()
 
-  // Create Admin User
-  const adminUser = await prisma.adminUser.upsert({
-    where: { username: "admin" },
-    update: {},
-    create: {
-      username: "admin",
-      password: hashedPassword,
-    },
-  })
-  console.log(`Created/Updated admin user with id: ${adminUser.id}`)
-
-  // Create/Update Pages
-  const pagesData: Prisma.PageCreateOrConnectArgs["create"][] = [
-    {
-      slug: "hakkimizda",
-      title: "Hakkımızda",
-      content: `
-        <p><strong>HARUN ELEKTRİK</strong> olarak, İstanbul genelinde elektrik arızaları, tesisat kurulumu, avize montajı, topraklama hattı çekimi, elektrik panosu kurulumu ve güvenlik kamera sistemleri gibi geniş bir yelpazede profesyonel hizmetler sunmaktayız. Yılların verdiği tecrübe ve uzman ekibimizle, güvenli ve kaliteli çözümler üretmekteyiz.</p>
-        <p>Müşteri memnuniyetini her zaman ön planda tutarak, 7/24 kesintisiz hizmet anlayışıyla acil durumlarınızda dahi yanınızdayız. En son teknoloji ekipmanlarımız ve güncel bilgilerimizle, elektrikle ilgili tüm ihtiyaçlarınıza hızlı ve etkili çözümler sunuyoruz.</p>
-        <p>Bize ulaşmak için: <strong>+90 554 500 00 61</strong> numaralı telefondan arayabilir veya WhatsApp üzerinden canlı destek alabilirsiniz. Elektrik işlerinizde güvenilir ve profesyonel bir partner arıyorsanız, HARUN ELEKTRİK doğru adres!</p>
-        <p>Hizmetlerimiz hakkında daha fazla bilgi almak veya randevu oluşturmak için web sitemizi ziyaret edebilir veya doğrudan bizimle iletişime geçebilirsiniz.</p>
-      `,
-    },
-    {
-      slug: "iletisim",
-      title: "İletişim",
-      content: `
-        <p>Bize ulaşmak için aşağıdaki iletişim bilgilerini kullanabilirsiniz:</p>
-        <ul>
-          <li><strong>Telefon:</strong> +90 554 500 00 61</li>
-          <li><strong>E-posta:</strong> info@harunelektrik.com</li>
-          <li><strong>Adres:</strong> 3 Farklı Elektrik Şubemiz İle Tüm İstanbul Geneline Profesyonel Hizmet Veriyoruz</li>
-          <li><strong>WhatsApp Destek:</strong> <a href="https://wa.me/905545000061" target="_blank" rel="noopener noreferrer">+90 554 500 00 61</a></li>
-        </ul>
-        <p>Sorularınız, talepleriniz veya acil durumlarınız için bize dilediğiniz zaman ulaşabilirsiniz. Ekibimiz en kısa sürede size geri dönüş yapacaktır.</p>
-      `,
-    },
-    // Add other pages if necessary, e.g., 'blog'
-  ]
-
-  for (const pageData of pagesData) {
-    await prisma.page.upsert({
-      where: { slug: pageData.slug },
-      update: { content: pageData.content, title: pageData.title },
-      create: pageData,
-    })
-    console.log(`Created/Updated page: ${pageData.title}`)
-  }
-
-  // Page Content
-  await prisma.pageContent.upsert({
-    where: { pageName: "about-us" },
-    update: {
-      content: `
-        <h2 class="text-3xl font-bold text-gray-900 mb-6">HARUN ELEKTRİK Hakkında</h2>
-        <p class="text-lg text-gray-700 mb-4">
-          Harun Elektrik olarak, İstanbul genelinde elektrik sektöründe uzun yıllardır hizmet vermekteyiz.
-          Müşteri memnuniyetini her zaman ön planda tutarak, kaliteli ve güvenilir çözümler sunmayı
-          ilke edindik. Uzman ekibimiz ve geniş hizmet ağımızla, elektrik arızalarından tesisat
-          yenilemeye, aydınlatma çözümlerinden güvenlik sistemlerine kadar geniş bir yelpazede
-          profesyonel destek sağlıyoruz.
-        </p>
-        <p class="text-lg text-gray-700 mb-4">
-          Teknolojiyi yakından takip eden ve sürekli kendini geliştiren bir anlayışla, en güncel
-          ekipmanları ve yöntemleri kullanarak hızlı ve etkili çözümler üretiyoruz. Acil durumlar için
-          7/24 ulaşılabilir olmamız, müşterilerimizin her an güvende hissetmesini sağlamaktadır.
-        </p>
-        <p class="text-lg text-gray-700">
-          Harun Elektrik olarak amacımız, sadece elektrik sorunlarını çözmek değil, aynı zamanda
-          güvenli, verimli ve sürdürülebilir elektrik sistemleri kurarak yaşam kalitenizi artırmaktır.
-          Bize güvenin, elektrik işlerinizi profesyonellere bırakın.
-        </p>
-      `,
-    },
-    create: {
-      pageName: "about-us",
-      content: `
-        <h2 class="text-3xl font-bold text-gray-900 mb-6">HARUN ELEKTRİK Hakkında</h2>
-        <p class="text-lg text-gray-700 mb-4">
-          Harun Elektrik olarak, İstanbul genelinde elektrik sektöründe uzun yıllardır hizmet vermekteyiz.
-          Müşteri memnuniyetini her zaman ön planda tutarak, kaliteli ve güvenilir çözümler sunmayı
-          ilke edindik. Uzman ekibimiz ve geniş hizmet ağımızla, elektrik arızalarından tesisat
-          yenilemeye, aydınlatma çözümlerinden güvenlik sistemlerine kadar geniş bir yelpazede
-          profesyonel destek sağlıyoruz.
-        </p>
-        <p class="text-lg text-gray-700 mb-4">
-          Teknolojiyi yakından takip eden ve sürekli kendini geliştiren bir anlayışla, en güncel
-          ekipmanları ve yöntemleri kullanarak hızlı ve etkili çözümler üretiyoruz. Acil durumlar için
-          7/24 ulaşılabilir olmamız, müşterilerimizin her an güvende hissetmesini sağlamaktadır.
-        </p>
-        <p class="text-lg text-gray-700">
-          Harun Elektrik olarak amacımız, sadece elektrik sorunlarını çözmek değil, aynı zamanda
-          güvenli, verimli ve sürdürülebilir elektrik sistemleri kurarak yaşam kalitenizi artırmaktır.
-          Bize güvenin, elektrik işlerinizi profesyonellere bırakın.
-        </p>
-      `,
-    },
-  })
-  console.log("Page content seeded.")
-
-  // Settings
-  await prisma.setting.upsert({
-    where: { key: "siteName" },
-    update: { value: "HARUN ELEKTRİK" },
-    create: { key: "siteName", value: "HARUN ELEKTRİK" },
-  })
-  await prisma.setting.upsert({
-    where: { key: "contactPhone" },
-    update: { value: "0534 519 9055" },
-    create: { key: "contactPhone", value: "0534 519 9055" },
-  })
-  await prisma.setting.upsert({
-    where: { key: "contactEmail" },
-    update: { value: "info@harunelektrik.com" },
-    create: { key: "contactEmail", value: "info@harunelektrik.com" },
-  })
-  await prisma.setting.upsert({
-    where: { key: "contactAddress" },
-    update: { value: "3 Farklı Elektrik Şubemiz İle Tüm İstanbul Geneline Profesyonel Hizmet Veriyoruz" },
-    create: {
-      key: "contactAddress",
-      value: "3 Farklı Elektrik Şubemiz İle Tüm İstanbul Geneline Profesyonel Hizmet Veriyoruz",
-    },
-  })
-  console.log("Settings seeded.")
-
-  // Service Categories
-  const canakAnten = await prisma.serviceCategory.upsert({
-    where: { slug: "canak-anten-servisi" },
-    update: {},
-    create: {
-      name: "ÇANAK ANTEN SERVİSİ",
-      slug: "canak-anten-servisi",
-      description: "Çanak anten kurulumu ve tamiri hizmetleri.",
-      imageUrl: "/images/canak-anten.jpg",
+  // Create default settings
+  await prisma.settings.create({
+    data: {
+      siteName: "Harun Elektrik",
+      siteDescription: "Elektrik ve uydu sistemleri çözümlerinizde kurumsal ortağınız.",
+      contactEmail: "info@harunelektrik.com",
+      contactPhone: "+90 555 123 45 67",
+      address: "Örnek Mah. Örnek Cad. No:123, Örnek İlçe, Örnek İl",
+      whatsappNumber: "905551234567", // WhatsApp numarası uluslararası formatta
     },
   })
 
-  const merkeziUydu = await prisma.serviceCategory.upsert({
-    where: { slug: "merkezi-uydu-sistemi" },
-    update: {},
-    create: {
-      name: "MERKEZİ UYDU SİSTEMİ",
-      slug: "merkezi-uydu-sistemi",
-      description: "Merkezi uydu sistemleri kurulumu ve arıza giderme.",
-      imageUrl: "/images/merkezi-uydu.jpg",
+  // Create services
+  await prisma.service.createMany({
+    data: [
+      {
+        name: "Çanak Anten Kurulumu ve Ayarı",
+        description:
+          "Uydu sistemleri için profesyonel çanak anten kurulumu ve hassas ayar hizmetleri. Kesintisiz yayın keyfi için doğru adres.",
+        image: "/images/canak-anten.jpg",
+        slug: "canak-anten-kurulumu-ve-ayari",
+      },
+      {
+        name: "Merkezi Uydu Sistemleri",
+        description:
+          "Bina ve siteler için merkezi uydu sistemleri kurulumu, bakımı ve onarımı. Tüm dairelere tek merkezden yayın imkanı.",
+        image: "/images/merkezi-uydu.jpg",
+        slug: "merkezi-uydu-sistemleri",
+      },
+      {
+        name: "Güvenlik Kamera Sistemleri",
+        description:
+          "Ev ve iş yerleri için yüksek çözünürlüklü güvenlik kamera sistemleri kurulumu. Uzaktan izleme ve kayıt imkanı.",
+        image: "/images/guvenlik-kamera.jpg",
+        slug: "guvenlik-kamera-sistemleri",
+      },
+      {
+        name: "Televizyon Tamiri ve Montajı",
+        description:
+          "Her marka ve model televizyonun tamiri, duvara montajı ve kanal ayarlamaları. Hızlı ve güvenilir servis.",
+        image: "/images/televizyon-tamiri.jpg",
+        slug: "televizyon-tamiri-ve-montaji",
+      },
+      {
+        name: "Network ve İnternet Altyapısı",
+        description:
+          "Ev ve ofisler için kablolu/kablosuz network kurulumu, internet altyapısı çözümleri ve modem kurulumu.",
+        image: "/images/network-internet.jpg",
+        slug: "network-ve-internet-altyapisi",
+      },
+      {
+        name: "Aydınlatma Sistemleri Kurulumu",
+        description:
+          "İç ve dış mekanlar için modern aydınlatma sistemleri tasarımı ve kurulumu. Enerji verimli ve estetik çözümler.",
+        image: "/images/aydinlatma.jpg",
+        slug: "aydinlatma-sistemleri-kurulumu",
+      },
+      {
+        name: "Elektrik Tesisatı Yenileme",
+        description:
+          "Eski ve yıpranmış elektrik tesisatlarının modern standartlara uygun olarak yenilenmesi. Güvenli ve sorunsuz elektrik altyapısı.",
+        image: "/images/hero-elektrik-tesisat.jpg",
+        slug: "elektrik-tesisati-yenileme",
+      },
+      {
+        name: "Avize ve Montaj Hizmetleri",
+        description:
+          "Her türlü avize, aplik ve aydınlatma armatürlerinin profesyonel montajı ve elektrik bağlantıları.",
+        image: "/images/hero-avize-montaj.jpg",
+        slug: "avize-ve-montaj-hizmetleri",
+      },
+    ],
+  })
+
+  // Create products
+  await prisma.product.createMany({
+    data: [
+      {
+        name: "HDMI Kablo (5 Metre)",
+        description: "Yüksek kaliteli 5 metre HDMI kablo. Full HD ve 4K çözünürlük desteği.",
+        price: 75.0,
+        image: "/images/kablo.jpg",
+        slug: "hdmi-kablo-5-metre",
+        category: "Kablolar",
+      },
+      {
+        name: "Uydu Alıcısı (Full HD)",
+        description: "Full HD çözünürlük destekli uydu alıcısı. Kolay kurulum ve kullanım.",
+        price: 450.0,
+        image: "/placeholder.svg?height=400&width=400",
+        slug: "uydu-alicisi-full-hd",
+        category: "Uydu Ekipmanları",
+      },
+      {
+        name: "LED Ampul (9W, Beyaz)",
+        description: "Enerji tasarruflu 9W LED ampul. Beyaz ışık, uzun ömürlü.",
+        price: 35.0,
+        image: "/placeholder.svg?height=400&width=400",
+        slug: "led-ampul-9w-beyaz",
+        category: "Aydınlatma",
+      },
+      {
+        name: "Akıllı Priz",
+        description: "Wi-Fi kontrollü akıllı priz. Uzaktan açma/kapama ve zamanlama özellikleri.",
+        price: 120.0,
+        image: "/placeholder.svg?height=400&width=400",
+        slug: "akilli-priz",
+        category: "Akıllı Ev",
+      },
+      {
+        name: "Ethernet Kablosu (10 Metre)",
+        description: "Cat6 standartlarında 10 metre ethernet kablosu. Yüksek hızlı internet bağlantısı için ideal.",
+        price: 60.0,
+        image: "/images/network-internet.jpg",
+        slug: "ethernet-kablosu-10-metre",
+        category: "Kablolar",
+      },
+      {
+        name: "Dış Mekan Güvenlik Kamerası",
+        description: "Su geçirmez, gece görüşlü dış mekan güvenlik kamerası. Full HD kayıt.",
+        price: 800.0,
+        image: "/images/guvenlik-kamera.jpg",
+        slug: "dis-mekan-guvenlik-kamerasi",
+        category: "Güvenlik Sistemleri",
+      },
+    ],
+  })
+
+  // Create About Us and Contact page content
+  // This data will be fetched by the respective pages
+  // For "Hakkımızda" page
+  await prisma.service.create({
+    data: {
+      name: "Hakkımızda Sayfası İçeriği",
+      description: `Harun Elektrik olarak, 20 yılı aşkın süredir elektrik ve uydu sistemleri alanında güvenilir ve kaliteli hizmetler sunmaktayız. Müşteri memnuniyetini her zaman ön planda tutarak, sektördeki yenilikleri yakından takip ediyor ve en güncel teknolojileri projelerimize entegre ediyoruz. Uzman ekibimizle birlikte, ev ve iş yerleriniz için anahtar teslim çözümler sunuyoruz.
+
+Misyonumuz, elektrik ve uydu sistemleri alanında güvenli, verimli ve sürdürülebilir çözümler sunarak müşterilerimizin hayatını kolaylaştırmaktır. Vizyonumuz ise sektörde lider bir konuma gelerek, teknolojik gelişmeleri öncü bir şekilde uygulayan ve müşteri odaklı hizmet anlayışıyla fark yaratan bir marka olmaktır.
+
+Değerlerimiz arasında dürüstlük, şeffaflık, kalite, güvenilirlik ve sürekli gelişim bulunmaktadır. Her projede bu değerlere bağlı kalarak, müşterilerimize en iyi deneyimi sunmayı hedefliyoruz.`,
+      image: "/images/harun-elektrik-team.jpg",
+      slug: "hakkimizda-icerik", // Özel bir slug ile işaretliyoruz
     },
   })
 
-  const guvenlikKamera = await prisma.serviceCategory.upsert({
-    where: { slug: "guvenlik-kamera-sistemi" },
-    update: {},
-    create: {
-      name: "GÜVENLİK KAMERA SİSTEMİ",
-      slug: "guvenlik-kamera-sistemi",
-      description: "Güvenlik kamera sistemleri kurulumu ve bakımı.",
-      imageUrl: "/images/guvenlik-kamera.jpg",
+  // For "İletişim" page (will be created later)
+  await prisma.service.create({
+    data: {
+      name: "İletişim Sayfası İçeriği",
+      description: `Bizimle iletişime geçmekten çekinmeyin! Harun Elektrik olarak tüm elektrik ve uydu sistemleri ihtiyaçlarınızda yanınızdayız. Sorularınız, talepleriniz veya randevu almak için aşağıdaki iletişim bilgilerini kullanabilir veya formu doldurabilirsiniz.
+
+Adres: Örnek Mah. Örnek Cad. No:123, Örnek İlçe, Örnek İl
+Telefon: +90 555 123 45 67
+E-posta: info@harunelektrik.com
+
+Çalışma Saatleri:
+Pazartesi - Cuma: 09:00 - 18:00
+Cumartesi: 09:00 - 14:00
+Pazar: Kapalı`,
+      image: "/placeholder.svg?height=400&width=600", // Placeholder for contact image
+      slug: "iletisim-icerik", // Özel bir slug ile işaretliyoruz
     },
   })
 
-  const televizyonTamiri = await prisma.serviceCategory.upsert({
-    where: { slug: "televizyon-tamiri" },
-    update: {},
-    create: {
-      name: "TELEVİZYON TAMİRİ",
-      slug: "televizyon-tamiri",
-      description: "Televizyon tamiri ve montaj hizmetleri.",
-      imageUrl: "/images/televizyon-tamiri.jpg",
-    },
-  })
-
-  const networkInternet = await prisma.serviceCategory.upsert({
-    where: { slug: "network-internet-servisi" },
-    update: {},
-    create: {
-      name: "NETWORK İNTERNET SERVİSİ",
-      slug: "network-internet-servisi",
-      description: "Network ve internet altyapı hizmetleri.",
-      imageUrl: "/images/network-internet.jpg",
-    },
-  })
-  console.log("Service categories seeded.")
-
-  // Services
-  const servicesData: Prisma.ServiceCreateInput[] = [
-    {
-      name: "Elektrik Arıza Tespiti ve Onarımı",
-      description: "Ev ve iş yerlerindeki elektrik arızalarının hızlı ve güvenli tespiti ve onarımı.",
-      imageUrl: "/images/elektrik-ariza.jpg",
-      slug: "elektrik-ariza",
-    },
-    {
-      name: "Avize Montajı ve Demontajı",
-      description: "Her türlü avize ve aydınlatma armatürünün profesyonel montaj ve demontaj hizmetleri.",
-      imageUrl: "/images/avize-montaji.jpg",
-      slug: "avize-montaji",
-    },
-    {
-      name: "Yeni Elektrik Tesisatı Kurulumu",
-      description: "Sıfırdan elektrik tesisatı çekimi ve mevcut tesisatın yenilenmesi.",
-      imageUrl: "/images/elektrik-tesisati.jpg",
-      slug: "elektrik-tesisati",
-    },
-    {
-      name: "Topraklama Hattı Çekimi",
-      description: "Elektrik güvenliği için topraklama hattı kurulumu ve kontrolü.",
-      imageUrl: "/images/topraklama-hatti.jpg",
-      slug: "topraklama-hatti",
-    },
-    {
-      name: "Elektrik Panosu Kurulumu ve Bakımı",
-      description: "Modern ve güvenli elektrik panolarının kurulumu, bakımı ve revizyonu.",
-      imageUrl: "/images/elektrik-panosu.jpg",
-      slug: "elektrik-panosu",
-    },
-    {
-      name: "Çanak Anten Kurulumu ve Ayarı",
-      description: "Uydu sistemleri için çanak anten kurulumu, ayarı ve sinyal optimizasyonu.",
-      imageUrl: "/images/canak-anten.jpg",
-      slug: "canak-anten",
-    },
-    {
-      name: "Merkezi Uydu Sistemleri",
-      description: "Bina ve siteler için merkezi uydu sistemleri kurulumu ve bakımı.",
-      imageUrl: "/images/merkezi-uydu.jpg",
-      slug: "merkezi-uydu",
-    },
-    {
-      name: "Güvenlik Kamera Sistemleri",
-      description: "Ev ve iş yerleri için IP ve Analog güvenlik kamera sistemleri kurulumu.",
-      imageUrl: "/images/guvenlik-kamera.jpg",
-      slug: "guvenlik-kamera",
-    },
-    {
-      name: "Televizyon Tamiri ve Montajı",
-      description: "Her marka ve model televizyonun tamiri ve duvara montaj hizmetleri.",
-      imageUrl: "/images/televizyon-tamiri.jpg",
-      slug: "televizyon-tamiri",
-    },
-    {
-      name: "Network ve İnternet Altyapısı",
-      description: "Ev ve ofisler için kablolu/kablosuz network altyapısı kurulumu ve sorun giderme.",
-      imageUrl: "/images/network-internet.jpg",
-      slug: "network-internet",
-    },
-  ]
-
-  for (const serviceData of servicesData) {
-    await prisma.service.upsert({
-      where: { slug: serviceData.slug },
-      update: { ...serviceData },
-      create: serviceData,
-    })
-    console.log(`Created/Updated service: ${serviceData.name}`)
-  }
-
-  console.log("Services seeded.")
-
-  // Product Categories
-  const aydinlatma = await prisma.productCategory.upsert({
-    where: { slug: "aydinlatma" },
-    update: {},
-    create: {
-      name: "Aydınlatma Ürünleri",
-      slug: "aydinlatma",
-      description: "Ev ve iş yerleri için modern aydınlatma çözümleri.",
-      imageUrl: "/images/aydinlatma.jpg",
-    },
-  })
-
-  const kablo = await prisma.productCategory.upsert({
-    where: { slug: "kablo-ve-iletkenler" },
-    update: {},
-    create: {
-      name: "Kablo ve İletkenler",
-      slug: "kablo-ve-iletkenler",
-      description: "Elektrik tesisatında kullanılan çeşitli kablo ve iletkenler.",
-      imageUrl: "/images/kablo.jpg",
-    },
-  })
-  console.log("Product categories seeded.")
-
-  // Products
-  const productsData: Prisma.ProductCreateInput[] = [
-    {
-      name: "LED Ampul E27 9W",
-      description: "Yüksek verimli, uzun ömürlü LED ampul. E27 duy, 9W güç tüketimi.",
-      price: 49.9,
-      imageUrl: "/images/aydinlatma.jpg",
-      category: "Aydınlatma",
-      stock: 150,
-    },
-    {
-      name: "Bakır Elektrik Kablosu (100m)",
-      description: "Yüksek kaliteli, dayanıklı bakır elektrik kablosu. 100 metre rulo.",
-      price: 299.5,
-      imageUrl: "/images/kablo.jpg",
-      category: "Kablolar",
-      stock: 80,
-    },
-    {
-      name: "Akıllı Priz",
-      description: "Uzaktan kontrol edilebilir, enerji tüketimi izlenebilir akıllı priz.",
-      price: 129.0,
-      imageUrl: "/placeholder.svg?height=400&width=400",
-      category: "Akıllı Ev",
-      stock: 75,
-    },
-    {
-      name: "Hareket Sensörlü Lamba",
-      description: "Otomatik açılıp kapanan, enerji tasarruflu hareket sensörlü lamba.",
-      price: 89.9,
-      imageUrl: "/placeholder.svg?height=400&width=400",
-      category: "Aydınlatma",
-      stock: 120,
-    },
-    {
-      name: "Topraklı Uzatma Kablosu (5m)",
-      description: "Güvenli kullanım için topraklı, 5 metre uzunluğunda uzatma kablosu.",
-      price: 59.9,
-      imageUrl: "/placeholder.svg?height=400&width=400",
-      category: "Kablolar",
-      stock: 200,
-    },
-  ]
-
-  for (const productData of productsData) {
-    await prisma.product.upsert({
-      where: { name: productData.name },
-      update: { ...productData },
-      create: productData,
-    })
-    console.log(`Created/Updated product: ${productData.name}`)
-  }
-
-  console.log("Products seeded.")
-
-  console.log(`Seeding finished.`)
+  console.log("Seed data created successfully!")
 }
 
 main()

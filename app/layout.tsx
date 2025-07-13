@@ -2,31 +2,37 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { CartProvider } from "@/context/cart-context"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { SiteHeader } from "@/components/site-header"
+import { SiteFooter } from "@/components/site-footer"
+import WhatsAppButton from "@/components/whatsapp-button"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "HARUN ELEKTRİK - Profesyonel Elektrik Hizmetleri",
-  description:
-    "İstanbul genelinde 7/24 elektrik arıza tamiri, avize montajı, elektrik tesisatı ve teknik hizmetler. Güvenilir ve hızlı çözümler için HARUN ELEKTRİK.",
-  keywords: "elektrik, elektrikçi, arıza tamiri, avize montajı, elektrik tesisatı, İstanbul, acil elektrik servisi",
+  title: "Harun Elektrik",
+  description: "Harun Elektrik - Kurumsal Çözüm Ortağınız",
     generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="tr">
+    <html lang="tr" suppressHydrationWarning>
       <body className={inter.className}>
-        <CartProvider>
-          {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <div className="flex flex-col min-h-screen">
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+            <WhatsAppButton phoneNumber="+905545000061" />
+          </div>
           <Toaster />
-        </CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

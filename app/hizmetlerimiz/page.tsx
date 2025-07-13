@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { dbService } from "@/lib/database"
+import { getServices } from "@/lib/database"
 import { PhoneCall } from "lucide-react"
 import WhatsAppButton from "@/components/whatsapp-button"
 
 export const dynamic = "force-dynamic"
 
 export default async function ServicesPage() {
-  const services = await dbService.getAllServices()
+  const services = await getServices()
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -25,9 +25,9 @@ export default async function ServicesPage() {
             layout="fill"
             objectFit="cover"
             quality={100}
-            className="z-0"
+            className="z-0 brightness-[0.6]"
           />
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-center z-10">
+          <div className="absolute inset-0 flex items-center justify-center text-center z-10">
             <div className="max-w-4xl px-4">
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Hizmetlerimiz</h1>
               <p className="text-xl text-gray-200">Elektrik ve Teknik Hizmetlerde Profesyonel Çözümler</p>
@@ -50,7 +50,7 @@ export default async function ServicesPage() {
                 <Card key={service.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-white">
                   <div className="relative w-full h-48">
                     <Image
-                      src={service.imageUrl || "/placeholder.svg?height=300&width=400"}
+                      src={service.image || "/placeholder.svg?height=300&width=400"}
                       alt={service.name}
                       layout="fill"
                       objectFit="cover"

@@ -15,12 +15,14 @@ model AdminUser {
   updatedAt DateTime @updatedAt
 }
 
-model Setting {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Settings {
+  id             String @id @default(uuid())
+  siteName       String
+  siteDescription String
+  contactEmail   String
+  contactPhone   String
+  address        String
+  whatsappNumber String
 }
 
 model ServiceCategory {
@@ -35,34 +37,29 @@ model ServiceCategory {
 }
 
 model Service {
-  id                String           @id @default(uuid())
-  name              String           @unique
-  slug              String           @unique
-  shortDescription  String?
-  description       String?
-  price             Decimal?         @db.Decimal(10, 2)
-  imageUrl          String?
-  isFeatured        Boolean          @default(false)
+  id          String @id @default(uuid())
+  name        String @unique
+  description String
+  image       String
+  slug        String @unique
   serviceCategoryId String
-  category          ServiceCategory  @relation(fields: [serviceCategoryId], references: [id])
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  category    ServiceCategory @relation(fields: [serviceCategoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Product {
-  id               String          @id @default(uuid())
-  name             String          @unique
-  slug             String          @unique
-  shortDescription String?
-  description      String?
-  price            Decimal         @db.Decimal(10, 2)
-  imageUrl         String?
-  isFeatured       Boolean         @default(false)
-  categoryId       String
-  category         ProductCategory @relation(fields: [categoryId], references: [id])
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  OrderItems       OrderItem[]
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String
+  price       Float
+  image       String
+  slug        String  @unique
+  categoryId  String
+  category    ProductCategory @relation(fields: [categoryId], references: [id])
+  OrderItems  OrderItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ProductCategory {
@@ -77,13 +74,16 @@ model ProductCategory {
 }
 
 model Order {
-  id        String     @id @default(uuid())
-  totalAmount Decimal    @db.Decimal(10, 2)
-  status    String     @default("pending") // pending, completed, cancelled
-  paymentId String?    @unique // iZico payment ID
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  items     OrderItem[]
+  id             String   @id @default(uuid())
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  customerAddress String
+  totalAmount    Float
+  items          Json     // Store cart items as JSON
+  status         String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model OrderItem {
@@ -91,7 +91,7 @@ model OrderItem {
   orderId   String
   productId String
   quantity  Int
-  price     Decimal  @db.Decimal(10, 2)
+  price     Float
   order     Order    @relation(fields: [orderId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())

@@ -64,3 +64,6 @@ INSERT INTO settings (key, value, group_name) VALUES
 -- İlk admin kullanıcısı
 INSERT INTO users (email, password, name, role) VALUES 
 ('admin@harunelektrik.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'ADMIN');
+
+-- This file is intentionally left empty.
+-- Prisma seed data is handled by prisma/seed.ts
