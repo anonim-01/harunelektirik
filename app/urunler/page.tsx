@@ -1,5 +1,5 @@
-import Image from "next/image"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { SiteHeader } from "@/components/site-header"
@@ -14,79 +14,59 @@ export default async function ProductsPage() {
   const products = await getProducts()
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <SiteHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[400px] overflow-hidden">
+        <section className="relative w-full h-[300px] md:h-[400px] overflow-hidden flex items-center justify-center text-center">
           <Image
-            src="/images/products-hero.jpg"
-            alt="Ürünlerimiz"
+            src="/images/products-hero.jpg" // Use a relevant hero image for products
+            alt="Ürünlerimiz Hero"
             layout="fill"
             objectFit="cover"
-            quality={100}
-            className="z-0 brightness-[0.6]"
+            className="brightness-[0.6]"
+            priority
           />
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-center z-10">
-            <div className="max-w-4xl px-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Ürünlerimiz</h1>
-              <p className="text-xl text-gray-200">Kaliteli Elektrik Malzemeleri ve Ekipmanları</p>
-            </div>
+          <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg animate-fade-in-up">
+              Ürünlerimiz
+            </h1>
+            <p className="mt-4 text-lg md:text-xl text-gray-200 drop-shadow-md animate-fade-in-up animation-delay-200">
+              Kaliteli Elektrik Malzemeleri ve Ekipmanları
+            </p>
           </div>
         </section>
 
-        {/* Products Grid */}
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Tüm Ürünlerimiz</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Elektrik projeleriniz için ihtiyacınız olan tüm kaliteli malzemeler ve ekipmanlar.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Products Grid Section */}
+        <section className="py-16 md:py-24 bg-white">
+          <div className="container mx-auto px-4 md:px-6 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Tüm Ürünlerimiz</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map((product) => (
-                <Card key={product.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-white">
-                  <div className="relative w-full h-48">
+                <Card
+                  key={product.id}
+                  className="group flex flex-col overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out"
+                >
+                  <div className="relative h-48 w-full overflow-hidden">
                     <Image
-                      src={product.image || "/placeholder.svg?height=300&width=400"}
+                      src={product.image || "/placeholder.svg"}
                       alt={product.name}
                       layout="fill"
                       objectFit="cover"
-                      className="transition-transform duration-300 hover:scale-105"
+                      className="transition-transform duration-500 group-hover:scale-110"
                     />
-                    {product.featured && (
-                      <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                        Öne Çıkan
-                      </div>
-                    )}
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xl font-bold text-red-600">{product.price.toFixed(2)} TL</span>
-                      {product.stock && product.stock > 0 ? (
-                        <span className="text-green-600 text-sm font-medium">Stokta</span>
-                      ) : (
-                        <span className="text-red-600 text-sm font-medium">Tükendi</span>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Link href={`/urunler/${product.slug}`} className="flex-1">
-                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-sm">
-                          <ShoppingBag className="h-4 w-4 mr-1" />
-                          İncele
-                        </Button>
-                      </Link>
-                      <Link href="tel:+905545000061">
+                  <CardContent className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
+                    <p className="text-gray-600 text-sm mb-4 flex-1">{product.description}</p>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-2xl font-bold text-red-600">{product.price.toFixed(2)} TL</span>
+                      <Link href={`/urunler/${product.slug}`}>
                         <Button
                           variant="outline"
-                          size="icon"
-                          className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent"
+                          className="text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
                         >
-                          <PhoneCall className="h-4 w-4" />
+                          İncele <ShoppingBag className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     </div>
@@ -97,26 +77,23 @@ export default async function ProductsPage() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-16 bg-red-600 text-white text-center">
+        {/* Call to Action Section - Kept for consistency */}
+        <section className="py-16 bg-gradient-to-r from-red-600 to-red-700 text-white text-center">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Aradığınız Ürünü Bulamadınız mı?</h2>
-            <p className="text-lg md:text-xl mb-8">
-              Geniş ürün yelpazemiz için bize ulaşın, size en uygun çözümü bulalım!
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Acil Elektrik Arızası mı Var?</h2>
+            <p className="text-lg md:text-xl mb-8">7/24 Hızlı ve Güvenilir Çözümler İçin Bize Ulaşın!</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="tel:+905545000061">
-                <Button className="bg-white text-red-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
-                  <PhoneCall className="h-5 w-5 mr-2" />
-                  Hemen Ara: +90 554 500 00 61
+                <Button className="bg-white text-red-600 hover:bg-gray-100 px-10 py-4 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                  <PhoneCall className="h-6 w-6 mr-3" /> Hemen Ara: +90 554 500 00 61
                 </Button>
               </Link>
               <Link href="https://wa.me/905545000061">
                 <Button
                   variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-red-600 px-8 py-3 text-lg font-semibold bg-transparent"
+                  className="border-2 border-white text-white hover:bg-white hover:text-red-600 px-10 py-4 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-transparent"
                 >
-                  WhatsApp ile İletişim
+                  WhatsApp Destek
                 </Button>
               </Link>
             </div>

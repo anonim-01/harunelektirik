@@ -1,11 +1,11 @@
 {
-  "name": "harun-elektrik",
+  "name": "harun-elektirik",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "prisma generate && next build",
-    "db:seed": "ts-node prisma/seed.ts",
+    "build": "next build",
     "dev": "next dev",
+    "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start"
   },
@@ -41,7 +41,7 @@
     "@radix-ui/react-tooltip": "latest",
     "@tremor/react": "latest",
     "autoprefixer": "^10.4.20",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "latest",
@@ -61,10 +61,11 @@
     "react-dom": "^18",
     "react-hook-form": "latest",
     "react-resizable-panels": "latest",
-    "recharts": "^2.12.7",
+    "recharts": "latest",
     "shadcn": "latest",
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
+    "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "latest",
     "zod": "^3.24.1"
@@ -74,8 +75,9 @@
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.4",
     "postcss": "^8.5",
-    "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   }

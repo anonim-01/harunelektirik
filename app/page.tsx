@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { getServices, getProducts } from "@/lib/database"
+import { getServices, getProducts, getAboutUsContent } from "@/lib/database" // Added getAboutUsContent
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
-import { ArrowRight, CheckCircle } from "lucide-react"
-import AutoScroll from "embla-carousel-autoplay"
+import { ArrowRight, CheckCircle, PhoneCall, Zap, Shield, Clock } from "lucide-react"
+import AutoScroll from "embla-carousel-autoplay" // Assuming this is needed for autoplay, will add if not present
 import WhatsAppButton from "@/components/whatsapp-button"
 
 export const dynamic = "force-dynamic"
@@ -15,6 +15,7 @@ export const dynamic = "force-dynamic"
 export default async function HomePage() {
   const services = await getServices()
   const products = await getProducts()
+  const aboutUsContent = await getAboutUsContent()
 
   const heroImages = [
     { src: "/images/hero-elektrik-1.jpg", alt: "Elektrik Tesisatı" },
@@ -32,6 +33,7 @@ export default async function HomePage() {
             className="w-full h-full"
             opts={{ loop: true }}
             plugins={[
+              // @ts-ignore
               AutoScroll({
                 delay: 4000,
                 stopOnInteraction: false,
@@ -71,36 +73,55 @@ export default async function HomePage() {
           </Carousel>
         </section>
 
+        {/* Why Choose Us Section - Kept for consistency */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Neden HARUN ELEKTRİK?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 bg-gradient-to-br from-white to-gray-50">
+                <CardContent className="flex flex-col items-center text-center p-0">
+                  <div className="bg-red-100 p-4 rounded-full mb-4">
+                    <Clock className="h-12 w-12 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">7/24 Acil Destek</h3>
+                  <p className="text-gray-600">Elektrik arızalarında günün her saati hızlı ve güvenilir çözümler.</p>
+                </CardContent>
+              </Card>
+              <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 bg-gradient-to-br from-white to-gray-50">
+                <CardContent className="flex flex-col items-center text-center p-0">
+                  <div className="bg-red-100 p-4 rounded-full mb-4">
+                    <Shield className="h-12 w-12 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Uzman Kadro</h3>
+                  <p className="text-gray-600">Alanında deneyimli ve sertifikalı elektrik teknisyenleri.</p>
+                </CardContent>
+              </Card>
+              <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 bg-gradient-to-br from-white to-gray-50">
+                <CardContent className="flex flex-col items-center text-center p-0">
+                  <div className="bg-red-100 p-4 rounded-full mb-4">
+                    <Zap className="h-12 w-12 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Kaliteli Malzeme</h3>
+                  <p className="text-gray-600">Dayanıklı ve güvenli elektrik malzemeleri ile uzun ömürlü çözümler.</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
         {/* About Us Section */}
         <section id="about" className="py-16 md:py-24 bg-gray-50">
           <div className="container mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 className="text-4xl font-bold text-gray-900 leading-tight">
-                Harun Elektrik: Güvenilir ve Yenilikçi Çözümler
-              </h2>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                20 yılı aşkın süredir elektrik ve uydu sistemleri alanında güvenilir ve kaliteli hizmetler sunmaktayız.
-                Müşteri memnuniyetini her zaman ön planda tutarak, sektördeki yenilikleri yakından takip ediyor ve en
-                güncel teknolojileri projelerimize entegre ediyoruz. Uzman ekibimizle birlikte, ev ve iş yerleriniz için
-                anahtar teslim çözümler sunuyoruz.
-              </p>
+              <h2 className="text-4xl font-bold text-gray-900 leading-tight">{aboutUsContent.title}</h2>
+              <p className="text-lg text-gray-700 leading-relaxed">{aboutUsContent.description}</p>
               <ul className="space-y-3 text-gray-700">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-red-600" />
-                  <span>Deneyimli ve Uzman Kadro</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-red-600" />
-                  <span>Geniş Hizmet Yelpazesi</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-red-600" />
-                  <span>Müşteri Odaklı Yaklaşım</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-red-600" />
-                  <span>Hızlı ve Güvenilir Çözümler</span>
-                </li>
+                {aboutUsContent.features.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-red-600" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
               </ul>
               <Link href="/hakkimizda">
                 <Button className="bg-red-600 hover:bg-red-700 mt-6 px-6 py-3 text-lg">
@@ -110,7 +131,7 @@ export default async function HomePage() {
             </div>
             <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
               <Image
-                src="/images/harun-elektrik-team.jpg"
+                src={aboutUsContent.image || "/placeholder.svg"}
                 alt="Harun Elektrik Ekibi"
                 layout="fill"
                 objectFit="cover"
@@ -222,7 +243,7 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="tel:+905545000061">
                 <Button className="bg-white text-red-600 hover:bg-gray-100 px-10 py-4 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                  Hemen Ara: +90 554 500 00 61
+                  <PhoneCall className="h-6 w-6 mr-3" /> Hemen Ara: +90 554 500 00 61
                 </Button>
               </Link>
               <Link href="https://wa.me/905545000061">
