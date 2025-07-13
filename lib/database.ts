@@ -1,18 +1,26 @@
-import { prisma } from "./prisma"
+import { PrismaClient } from "@prisma/client"
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
 export const dbService = {
   // Services
-  async getFeaturedServices() {
+  async getAllServices() {
     return await prisma.service.findMany({
-      where: { isFeatured: true },
-      take: 6,
       orderBy: { createdAt: "desc" },
     })
   },
 
-  async getAllServices() {
+  async getFeaturedServices() {
     return await prisma.service.findMany({
-      orderBy: { name: "asc" },
+      where: { featured: true },
+      take: 6,
+      orderBy: { createdAt: "desc" },
     })
   },
 
@@ -22,109 +30,90 @@ export const dbService = {
     })
   },
 
-  async getServiceCategories() {
-    return await prisma.serviceCategory.findMany({
-      include: {
-        services: true,
-      },
-      orderBy: { sortOrder: "asc" },
-    })
-  },
-
   // Products
-  async getFeaturedProducts() {
+  async getAllProducts() {
     return await prisma.product.findMany({
-      where: { isFeatured: true },
-      take: 6,
       orderBy: { createdAt: "desc" },
     })
   },
 
-  async getAllProducts() {
+  async getFeaturedProducts() {
     return await prisma.product.findMany({
-      include: { category: true },
-      orderBy: { name: "asc" },
+      where: { featured: true },
+      take: 6,
+      orderBy: { createdAt: "desc" },
     })
   },
 
   async getProductBySlug(slug: string) {
     return await prisma.product.findUnique({
       where: { slug },
-      include: { category: true },
     })
   },
 
-  async getProductCategories() {
-    return await prisma.category.findMany({
-      include: {
-        products: true,
-      },
-      orderBy: { sortOrder: "asc" },
-    })
-  },
-
-  // Pages
-  async getPageBySlug(slug: string) {
-    return await prisma.page.findUnique({
-      where: { slug },
-    })
-  },
-
-  async getPageContent(pageName: string) {
+  // Page Content
+  async getPageContent(pageSlug: string) {
     return await prisma.pageContent.findUnique({
-      where: { pageName },
+      where: { pageSlug },
     })
-  },
-
-  // Settings
-  async getSetting(key: string) {
-    const setting = await prisma.setting.findUnique({
-      where: { key },
-    })
-    return setting?.value || null
-  },
-
-  async getSettings() {
-    const settings = await prisma.setting.findMany()
-    return settings.reduce(
-      (acc, setting) => {
-        acc[setting.key] = setting.value
-        return acc
-      },
-      {} as Record<string, string>,
-    )
   },
 
   // Orders
   async createOrder(orderData: any) {
     return await prisma.order.create({
       data: orderData,
-      include: {
-        items: true,
-      },
     })
   },
 
-  async getOrderById(id: string) {
-    return await prisma.order.findUnique({
-      where: { id },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
+  async getAllOrders() {
+    return await prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
     })
   },
 
-  // Dashboard / statistics
+  // Settings
+  async getSettings() {
+    return await prisma.settings.findFirst()
+  },
+
+  async updateSettings(data: any) {
+    const existingSettings = await prisma.settings.findFirst()
+    if (existingSettings) {
+      return await prisma.settings.update({
+        where: { id: existingSettings.id },
+        data,
+      })
+    } else {
+      return await prisma.settings.create({
+        data,
+      })
+    }
+  },
+
+  // Stats - Fixed function
   async getStats() {
-    const [totalServices, totalProducts, totalOrders] = await Promise.all([
-      prisma.service.count(),
-      prisma.product.count(),
+    const [totalOrders, totalProducts, totalServices, recentOrders] = await Promise.all([
       prisma.order.count(),
+      prisma.product.count(),
+      prisma.service.count(),
+      prisma.order.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+      }),
     ])
-    return { totalServices, totalProducts, totalOrders }
+
+    const totalRevenue = await prisma.order.aggregate({
+      _sum: {
+        total: true,
+      },
+    })
+
+    return {
+      totalOrders,
+      totalProducts,
+      totalServices,
+      totalRevenue: totalRevenue._sum.total || 0,
+      recentOrders,
+    }
   },
 }

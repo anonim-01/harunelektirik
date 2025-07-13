@@ -3,16 +3,16 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { CartProvider } from "@/context/cart-context"
-import { Toaster } from "@/components/ui/toaster"
-import WhatsAppButton from "@/components/whatsapp-button"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "HARUN ELEKTRİK - Profesyonel Elektrik Hizmetleri",
+  title: "HARUN ELEKTRİK - Güvenilir Elektrik Hizmetleri",
   description:
-    "İstanbul genelinde 7/24 elektrik arıza, tesisat, avize montajı ve güvenlik kamera sistemleri hizmetleri.",
-  keywords: "elektrikçi, elektrik arıza, avize montajı, elektrik tesisatı, güvenlik kamerası, İstanbul",
+    "İstanbul genelinde 7/24 elektrik arıza tamiri, elektrik tesisatı, avize montajı ve teknik hizmetler. Profesyonel ekip, kaliteli malzeme, uygun fiyat.",
+  keywords:
+    "elektrik, elektrikçi, arıza tamiri, elektrik tesisatı, avize montajı, İstanbul elektrikçi, acil elektrik servisi",
     generator: 'v0.dev'
 }
 
@@ -27,7 +27,6 @@ export default function RootLayout({
         <CartProvider>
           {children}
           <Toaster />
-          <WhatsAppButton phoneNumber="+905545000061" />
         </CartProvider>
       </body>
     </html>

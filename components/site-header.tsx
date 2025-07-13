@@ -1,106 +1,86 @@
-"use client" // Bu bileşenin client component olduğunu belirtin
+"use client"
 
+import { useState } from "react"
 import Link from "next/link"
-import { Zap, Phone, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useCart } from "@/context/cart-context" // useCart hook'unu import edin
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Menu, Phone, Zap } from "lucide-react"
 
 export function SiteHeader() {
-  const { getTotalItems } = useCart() // Sepet bilgilerini alın
+  const [isOpen, setIsOpen] = useState(false)
+
+  const navigation = [
+    { name: "Ana Sayfa", href: "/" },
+    { name: "Hakkımızda", href: "/hakkimizda" },
+    { name: "Hizmetlerimiz", href: "/hizmetlerimiz" },
+    { name: "Ürünlerimiz", href: "/urunler" },
+  ]
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
-          <Zap className="h-8 w-8 text-red-600" />
-          <span className="text-2xl font-bold text-gray-900">HARUN ELEKTRİK</span>
-        </Link>
-
-        <nav className="hidden md:flex space-x-6 text-gray-700 font-medium">
-          <Link href="/" className="hover:text-red-600">
-            ANASAYFA
-          </Link>
-          <Link href="/hakkimizda" className="hover:text-red-600">
-            HAKKIMIZDA
-          </Link>
-          <Link href="/hizmetlerimiz" className="hover:text-red-600">
-            HİZMETLERİMİZ
-          </Link>
-          <Link href="/urunler" className="hover:text-red-600">
-            ÜRÜNLER
-          </Link>
-          <Link href="/iletisim" className="hover:text-red-600">
-            İLETİŞİM
-          </Link>
-        </nav>
-
-        <div className="flex items-center space-x-4">
-          <Input type="search" placeholder="Ürün veya hizmet ara..." className="hidden lg:block w-48" />
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Zap className="h-5 w-5" />
-            <span className="sr-only">Ara</span>
-          </Button>
-
-          {/* Cart Icon */}
-          <Link href="/cart" className="relative">
-            <Button variant="ghost" size="icon">
-              <ShoppingCart className="h-5 w-5" />
-              {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
-                  {getTotalItems()}
-                </span>
-              )}
-              <span className="sr-only">Sepet</span>
-            </Button>
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="bg-red-600 p-2 rounded-lg">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">HARUN ELEKTRİK</span>
           </Link>
 
-          <Button className="hidden md:flex bg-red-600 hover:bg-red-700">
-            <Phone className="h-4 w-4 mr-2" />
-            Hemen Ara
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Zap className="h-5 w-5" />
-                <span className="sr-only">Menü</span>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-gray-600 hover:text-red-600 transition-colors font-medium"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Contact Button */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link href="tel:+905545000061">
+              <Button className="bg-red-600 hover:bg-red-700 text-white">
+                <Phone className="h-4 w-4 mr-2" />
+                +90 554 500 00 61
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link href="/" className="w-full">
-                  ANASAYFA
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/hakkimizda" className="w-full">
-                  HAKKIMIZDA
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/hizmetlerimiz" className="w-full">
-                  HİZMETLERİMİZ
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/urunler" className="w-full">
-                  ÜRÜNLER
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/iletisim" className="w-full">
-                  İLETİŞİM
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button className="w-full bg-red-600 hover:bg-red-700">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Hemen Ara
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </Link>
+          </div>
+
+          {/* Mobile Menu */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <div className="flex flex-col space-y-4 mt-8">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="text-lg font-medium text-gray-600 hover:text-red-600 transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+                <div className="pt-4 border-t">
+                  <Link href="tel:+905545000061">
+                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                      <Phone className="h-4 w-4 mr-2" />
+                      +90 554 500 00 61
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
