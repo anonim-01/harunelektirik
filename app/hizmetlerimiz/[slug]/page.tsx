@@ -8,10 +8,19 @@ import { Phone, Star } from "lucide-react"
 import Link from "next/link"
 
 export async function generateStaticParams() {
-  const services = await dbService.getAllServices()
-  return services.map((service) => ({
-    slug: service.slug,
-  }))
+  // If DATABASE_URL isn’t defined (e.g. during a first-time Vercel build),
+  // skip DB access so the build doesn’t fail.
+  if (!process.env.DATABASE_URL) {
+    return []
+  }
+
+  try {
+    const services = await dbService.getAllServices()
+    return services.map((service) => ({ slug: service.slug }))
+  } catch {
+    // On any DB error return no params to avoid breaking the build
+    return []
+  }
 }
 
 export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
