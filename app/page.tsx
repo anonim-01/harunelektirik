@@ -9,6 +9,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { PhoneCall, ShoppingBag, Zap, Shield, Clock } from "lucide-react"
 import WhatsAppButton from "@/components/whatsapp-button"
 
+export const dynamic = "force-dynamic"
+
 export default async function HomePage() {
   const featuredServices = await dbService.getFeaturedServices()
   const featuredProducts = await dbService.getFeaturedProducts()

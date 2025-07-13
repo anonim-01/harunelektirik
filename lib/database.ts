@@ -117,4 +117,14 @@ export const dbService = {
       },
     })
   },
+
+  // Dashboard / statistics
+  async getStats() {
+    const [totalServices, totalProducts, totalOrders] = await Promise.all([
+      prisma.service.count(),
+      prisma.product.count(),
+      prisma.order.count(),
+    ])
+    return { totalServices, totalProducts, totalOrders }
+  },
 }

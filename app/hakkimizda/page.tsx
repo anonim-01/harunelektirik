@@ -7,6 +7,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { PhoneCall, Mail, MapPin, Clock, Users, Award } from "lucide-react"
 
+export const dynamic = "force-dynamic"
+
 export default async function AboutPage() {
   const pageContent = await dbService.getPageContent("about-us")
 

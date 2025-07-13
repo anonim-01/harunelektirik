@@ -7,6 +7,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { ShoppingBag, Star, Package } from "lucide-react"
 
+export const dynamic = "force-dynamic"
+
 export default async function ProductsPage() {
   const products = await dbService.getAllProducts()
   const productCategories = await dbService.getProductCategories()
