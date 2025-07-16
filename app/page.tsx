@@ -1,225 +1,110 @@
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
-import { getServices, getProducts, getAboutUsContent } from "@/lib/database" // Added getAboutUsContent
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
-import { ArrowRight, CheckCircle, PhoneCall, Zap, Shield, Clock } from "lucide-react"
-import AutoScroll from "embla-carousel-autoplay" // Assuming this is needed for autoplay, will add if not present
-import WhatsAppButton from "@/components/whatsapp-button"
+import { ArrowRight, CheckCircle } from "lucide-react"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
+import prisma from "@/lib/database"
 
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
-  const services = await getServices()
-  const products = await getProducts()
-  const aboutUsContent = await getAboutUsContent()
+  const featuredServices = await prisma.service.findMany({
+    where: { featured: true },
+    take: 3,
+    orderBy: { createdAt: "desc" },
+  })
 
-  const heroImages = [
+  const featuredProducts = await prisma.product.findMany({
+    where: { featured: true },
+    take: 3,
+    orderBy: { createdAt: "desc" },
+  })
+
+  const carouselImages = [
     { src: "/images/hero-elektrik-1.jpg", alt: "Elektrik Tesisatı" },
     { src: "/images/hero-avize-montaj.jpg", alt: "Avize Montajı" },
-    { src: "/images/hero-elektrik-tesisat.jpg", alt: "Elektrik Tesisat Yenileme" },
+    { src: "/images/hero-elektrik-tesisat.jpg", alt: "Elektrik Tesisat Bakımı" },
   ]
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <SiteHeader />
+    <div className="flex flex-col min-h-screen">
+      <section className="relative w-full h-[600px] md:h-[700px] lg:h-[800px] overflow-hidden">
+        <Carousel
+          className="w-full h-full"
+          plugins={[
+            Autoplay({
+              delay: 4000,
+              stopOnInteraction: false,
+            }),
+          ]}
+        >
+          <CarouselContent className="h-full">
+            {carouselImages.map((image, index) => (
+              <CarouselItem key={index} className="h-full">
+                <div className="relative w-full h-full">
+                  <Image
+                    src={image.src || "/placeholder.svg"}
+                    alt={image.alt}
+                    layout="fill"
+                    objectFit="cover"
+                    className="absolute inset-0 z-0"
+                  />
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-center p-4 z-10">
+                    <h1 className="text-4xl md:text-7xl font-extrabold text-white drop-shadow-lg leading-tight">
+                      Harun Elektirik
+                    </h1>
+                    <p className="mt-4 text-2xl md:text-4xl font-semibold text-white drop-shadow-md">
+                      Kurumsal Çözüm Ortağınız
+                    </p>
+                    <Link href="/hizmetlerimiz" passHref>
+                      <Button className="mt-8 px-8 py-3 text-lg md:text-xl font-semibold bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg transition-transform transform hover:scale-105">
+                        Hizmetlerimizi Keşfedin
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-20 text-white bg-black/30 hover:bg-black/50 rounded-full p-2" />
+          <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-20 text-white bg-black/30 hover:bg-black/50 rounded-full p-2" />
+        </Carousel>
+      </section>
+
       <main className="flex-1">
-        {/* Hero Section with Carousel */}
-        <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden">
-          <Carousel
-            className="w-full h-full"
-            opts={{ loop: true }}
-            plugins={[
-              // @ts-ignore
-              AutoScroll({
-                delay: 4000,
-                stopOnInteraction: false,
-                stopOnMouseEnter: true,
-              }),
-            ]}
-          >
-            <CarouselContent className="h-full">
-              {heroImages.map((image, index) => (
-                <CarouselItem key={index} className="h-full">
-                  <div className="relative h-full w-full">
-                    <Image
-                      src={image.src || "/placeholder.svg"}
-                      alt={image.alt}
-                      layout="fill"
-                      objectFit="cover"
-                      className="brightness-[0.6]"
-                      priority={index === 0}
-                    />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-black/30">
-                      <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-4 animate-fade-in-up">
-                        Harun Elektrik
-                      </h1>
-                      <p className="text-2xl md:text-4xl text-white font-semibold drop-shadow-md mb-8 animate-fade-in-up animation-delay-200">
-                        Kurumsal Çözüm Ortağınız
-                      </p>
-                      <Link href="/hizmetlerimiz">
-                        <Button className="bg-red-600 hover:bg-red-700 text-lg px-8 py-3 rounded-full shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 animate-fade-in-up animation-delay-400">
-                          Hizmetlerimizi Keşfedin
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-        </section>
-
-        {/* Why Choose Us Section - Kept for consistency */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Neden HARUN ELEKTRİK?</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 bg-gradient-to-br from-white to-gray-50">
-                <CardContent className="flex flex-col items-center text-center p-0">
-                  <div className="bg-red-100 p-4 rounded-full mb-4">
-                    <Clock className="h-12 w-12 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">7/24 Acil Destek</h3>
-                  <p className="text-gray-600">Elektrik arızalarında günün her saati hızlı ve güvenilir çözümler.</p>
-                </CardContent>
-              </Card>
-              <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 bg-gradient-to-br from-white to-gray-50">
-                <CardContent className="flex flex-col items-center text-center p-0">
-                  <div className="bg-red-100 p-4 rounded-full mb-4">
-                    <Shield className="h-12 w-12 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Uzman Kadro</h3>
-                  <p className="text-gray-600">Alanında deneyimli ve sertifikalı elektrik teknisyenleri.</p>
-                </CardContent>
-              </Card>
-              <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 bg-gradient-to-br from-white to-gray-50">
-                <CardContent className="flex flex-col items-center text-center p-0">
-                  <div className="bg-red-100 p-4 rounded-full mb-4">
-                    <Zap className="h-12 w-12 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Kaliteli Malzeme</h3>
-                  <p className="text-gray-600">Dayanıklı ve güvenli elektrik malzemeleri ile uzun ömürlü çözümler.</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* About Us Section */}
-        <section id="about" className="py-16 md:py-24 bg-gray-50">
-          <div className="container mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h2 className="text-4xl font-bold text-gray-900 leading-tight">{aboutUsContent.title}</h2>
-              <p className="text-lg text-gray-700 leading-relaxed">{aboutUsContent.description}</p>
-              <ul className="space-y-3 text-gray-700">
-                {aboutUsContent.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-red-600" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/hakkimizda">
-                <Button className="bg-red-600 hover:bg-red-700 mt-6 px-6 py-3 text-lg">
-                  Daha Fazla Bilgi <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-            <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
-              <Image
-                src={aboutUsContent.image || "/placeholder.svg"}
-                alt="Harun Elektrik Ekibi"
-                layout="fill"
-                objectFit="cover"
-                className="transition-transform duration-500 hover:scale-105"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Services Section */}
-        <section id="services" className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4 md:px-6 text-center">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">Öne Çıkan Hizmetlerimiz</h2>
-            <p className="text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-              Elektrik ve uydu sistemleri alanında sunduğumuz geniş hizmet yelpazemizle, ihtiyaçlarınıza özel çözümler
-              üretiyoruz.
+        <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-900 px-4 md:px-6">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4">Hizmetlerimiz</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
+              Geniş yelpazedeki elektrik ve elektronik hizmetlerimizle her zaman yanınızdayız.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services.slice(0, 6).map((service) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredServices.map((service) => (
                 <Card
                   key={service.id}
-                  className="group flex flex-col overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out"
+                  className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
-                  <div className="relative h-48 w-full overflow-hidden">
+                  <div className="relative w-full h-48">
                     <Image
                       src={service.image || "/placeholder.svg"}
                       alt={service.name}
                       layout="fill"
                       objectFit="cover"
-                      className="transition-transform duration-500 group-hover:scale-110"
+                      className="transition-transform duration-300 hover:scale-105"
                     />
                   </div>
-                  <CardContent className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{service.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4 flex-1">{service.description.substring(0, 100)}...</p>
-                    <Link href={`/hizmetlerimiz/${service.slug}`} className="mt-auto">
-                      <Button
-                        variant="outline"
-                        className="w-full text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
-                      >
-                        Detayları Gör <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <Link href="/hizmetlerimiz">
-              <Button className="bg-red-600 hover:bg-red-700 mt-12 px-8 py-4 text-lg">
-                Tüm Hizmetlerimizi Gör <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
-        </section>
-
-        {/* Featured Products Section */}
-        <section id="products" className="py-16 md:py-24 bg-gray-50">
-          <div className="container mx-auto px-4 md:px-6 text-center">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">Öne Çıkan Ürünlerimiz</h2>
-            <p className="text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-              Kaliteli ve güvenilir elektrik ve uydu sistemleri ürünleriyle, projelerinize değer katıyoruz.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.slice(0, 6).map((product) => (
-                <Card
-                  key={product.id}
-                  className="group flex flex-col overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out"
-                >
-                  <div className="relative h-48 w-full overflow-hidden">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="transition-transform duration-500 group-hover:scale-110"
-                    />
-                  </div>
-                  <CardContent className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4 flex-1">{product.description.substring(0, 100)}...</p>
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className="text-2xl font-bold text-red-600">{product.price.toFixed(2)} TL</span>
-                      <Link href={`/urunler/${product.slug}`}>
-                        <Button
-                          variant="outline"
-                          className="text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
-                        >
-                          İncele <ArrowRight className="ml-2 h-4 w-4" />
+                  <CardContent className="p-6 flex flex-col justify-between h-[calc(100%-12rem)]">
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">{service.name}</h3>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">{service.description}</p>
+                    </div>
+                    <div className="mt-4">
+                      <Link href={`/hizmetlerimiz/${service.slug}`} passHref>
+                        <Button variant="outline" className="w-full bg-transparent">
+                          Detayları Gör
+                          <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     </div>
@@ -227,39 +112,87 @@ export default async function HomePage() {
                 </Card>
               ))}
             </div>
-            <Link href="/urunler">
-              <Button className="bg-red-600 hover:bg-red-700 mt-12 px-8 py-4 text-lg">
-                Tüm Ürünlerimizi Gör <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+            <Link href="/hizmetlerimiz" passHref>
+              <Button className="mt-12 px-8 py-3 text-lg font-semibold">Tüm Hizmetlerimizi Gör</Button>
             </Link>
           </div>
         </section>
 
-        {/* Call to Action Section */}
-        <section className="py-16 bg-gradient-to-r from-red-600 to-red-700 text-white text-center">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Acil Elektrik Arızası mı Var?</h2>
-            <p className="text-lg md:text-xl mb-8">7/24 Hızlı ve Güvenilir Çözümler İçin Bize Ulaşın!</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="tel:+905545000061">
-                <Button className="bg-white text-red-600 hover:bg-gray-100 px-10 py-4 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                  <PhoneCall className="h-6 w-6 mr-3" /> Hemen Ara: +90 554 500 00 61
-                </Button>
-              </Link>
-              <Link href="https://wa.me/905545000061">
-                <Button
-                  variant="outline"
-                  className="border-2 border-white text-white hover:bg-white hover:text-red-600 px-10 py-4 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-transparent"
+        <section className="py-12 md:py-20 px-4 md:px-6">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4">Öne Çıkan Ürünler</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
+              En çok tercih edilen ve kaliteli ürünlerimizi keşfedin.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredProducts.map((product) => (
+                <Card
+                  key={product.id}
+                  className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
                 >
-                  WhatsApp Destek
-                </Button>
+                  <div className="relative w-full h-48">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      layout="fill"
+                      objectFit="cover"
+                      className="transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
+                  <CardContent className="p-6 flex flex-col justify-between h-[calc(100%-12rem)]">
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">{product.description}</p>
+                    </div>
+                    <div className="mt-4 flex justify-between items-center">
+                      <span className="text-2xl font-bold text-primary-600">{product.price.toFixed(2)} TL</span>
+                      <Link href={`/urunler/${product.slug}`} passHref>
+                        <Button variant="outline">
+                          Detayları Gör
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <Link href="/urunler" passHref>
+              <Button className="mt-12 px-8 py-3 text-lg font-semibold">Tüm Ürünlerimizi Gör</Button>
+            </Link>
+          </div>
+        </section>
+
+        <section className="py-12 md:py-20 bg-gray-50 dark:bg-gray-900 px-4 md:px-6">
+          <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden shadow-lg">
+              <Image src="/images/harun-elektrik-team.jpg" alt="Hakkımızda" layout="fill" objectFit="cover" />
+            </div>
+            <div className="text-center md:text-left">
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4">Hakkımızda</h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                Harun Elektrik olarak, yıllardır elektrik ve elektronik sektöründe güvenilir ve kaliteli hizmetler
+                sunmaktayız. Müşteri memnuniyetini her zaman ön planda tutarak, uzman kadromuz ve geniş hizmet ağımızla
+                sizlere en iyi çözümleri sunmayı hedefliyoruz.
+              </p>
+              <ul className="space-y-3 text-left inline-block md:block">
+                <li className="flex items-center text-gray-700 dark:text-gray-300">
+                  <CheckCircle className="h-5 w-5 text-primary-500 mr-2 flex-shrink-0" /> Yılların Deneyimi
+                </li>
+                <li className="flex items-center text-gray-700 dark:text-gray-300">
+                  <CheckCircle className="h-5 w-5 text-primary-500 mr-2 flex-shrink-0" /> Uzman Kadro
+                </li>
+                <li className="flex items-center text-gray-700 dark:text-gray-300">
+                  <CheckCircle className="h-5 w-5 text-primary-500 mr-2 flex-shrink-0" /> Müşteri Memnuniyeti
+                </li>
+              </ul>
+              <Link href="/hakkimizda" passHref>
+                <Button className="mt-8 px-8 py-3 text-lg font-semibold">Daha Fazla Bilgi Edinin</Button>
               </Link>
             </div>
           </div>
         </section>
       </main>
-      <SiteFooter />
-      <WhatsAppButton phoneNumber="+905545000061" />
     </div>
   )
 }
